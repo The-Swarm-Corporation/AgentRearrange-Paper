@@ -2,10 +2,13 @@
 
 > A Technical Report on the `AgentRearrange` primitive in the [Swarms](https://github.com/kyegomez/swarms) framework.
 
+[![Paper (PDF)](https://img.shields.io/badge/Paper-PDF-red.svg)](./paper.pdf)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Swarms](https://img.shields.io/badge/Swarms-v12.0.0-orange.svg)](https://github.com/kyegomez/swarms)
 [![PyPI](https://img.shields.io/badge/PyPI-swarms-blue.svg)](https://pypi.org/project/swarms/)
 [![Docs](https://img.shields.io/badge/docs-swarms.world-green.svg)](https://docs.swarms.world)
+
+**Read the paper:** [`paper.pdf`](./paper.pdf)
 
 ---
 
@@ -22,9 +25,9 @@ Repository: [github.com/kyegomez/swarms](https://github.com/kyegomez/swarms)
 | Title | *AgentRearrange: A General-Purpose Multi-Agent Orchestrator* |
 | Date | June 2026 |
 | Version | Swarms v12.0.0 |
-| Format | Single-column, continuous LaTeX article |
+| Format | Single-column, continuous article |
 | License | Apache-2.0 |
-| Source | [`agent_rearrange_report.tex`](./agent_rearrange_report.tex) |
+| Paper | [`paper.pdf`](./paper.pdf) |
 
 ---
 
@@ -62,26 +65,11 @@ step      := agent_name ("," agent_name)*
 
 ```
 AgentRearrange-Paper/
-├── agent_rearrange_report.tex   # Full technical report (LaTeX source)
-├── README.md                    # This file
-├── LICENSE                      # Apache-2.0
-└── .gitignore
+├── paper.pdf      # Full technical report
+├── examples/      # Runnable Python examples
+├── README.md      # This file
+└── LICENSE        # Apache-2.0
 ```
-
-## Building the Paper
-
-The report compiles with any modern TeX Live or MacTeX distribution.
-
-```bash
-# Standard build
-pdflatex agent_rearrange_report.tex
-pdflatex agent_rearrange_report.tex    # second pass for cross-references
-
-# Or via latexmk (recommended)
-latexmk -pdf agent_rearrange_report.tex
-```
-
-**Required LaTeX packages:** `geometry`, `parskip`, `microtype`, `lmodern`, `graphicx`, `tikz` (with `arrows.meta`, `positioning`, `shapes.geometric`, `fit`, `backgrounds`, `calc` libraries), `listings`, `xcolor`, `seqsplit`, `booktabs`, `array`, `hyperref`, `xurl`.
 
 ## Minimal Usage Example
 
@@ -101,6 +89,27 @@ result = system.run("Write an article on the history of transformer architecture
 ```
 
 See **Section 6** of the report for diamond, multi-model ensemble, batched, asynchronous, and streaming examples.
+
+## Examples
+
+Runnable Python scripts for each canonical pattern live under [`examples/`](./examples). Each file is self-contained and corresponds to a listing in the report.
+
+| # | File | Pattern | Flow String | Agents | Key Feature | Report § |
+|---|---|---|---|---|---|---|
+| 1 | [`01_minimal_sequential.py`](./examples/01_minimal_sequential.py) | Linear pipeline | `researcher -> writer -> editor` | 3 | Baseline sequential execution | Listing 1 |
+| 2 | [`02_diamond_workflow.py`](./examples/02_diamond_workflow.py) | Diamond | `planner -> coder, reviewer -> tester` | 4 | Parallel middle, joined aggregator; `team_awareness=True` | Listing 2 |
+| 3 | [`03_multi_model_ensemble.py`](./examples/03_multi_model_ensemble.py) | Fan-out / fan-in | `ingest -> gpt, claude, gemini -> synthesizer` | 5 | Multi-provider ensemble (GPT, Claude, Gemini) with synthesis | Listing 3 |
+| 4 | [`04_revise_loop.py`](./examples/04_revise_loop.py) | Repeated agent (revise) | `writer -> reviewer -> writer` | 2 | Same agent invoked twice; indexed outputs (`Writer_0`, `Writer_2`) | Listing 4 |
+| 5 | [`05_batched_concurrent.py`](./examples/05_batched_concurrent.py) | Multi-task execution | `extract -> transform -> load` | 3 | `batch_run` (isolated state) vs. `concurrent_run` (shared instance) | Listing 5 |
+| 6 | [`06_async_streaming.py`](./examples/06_async_streaming.py) | Async + token streaming | `a -> b, c` | 3 | `run_async` awaitable; `arun_stream` for token-level interleaved output | Listing 6 |
+
+### Running an example
+
+```bash
+pip install -U swarms
+export OPENAI_API_KEY=...      # plus ANTHROPIC_API_KEY / GEMINI_API_KEY for ex. 3
+python examples/01_minimal_sequential.py
+```
 
 ## Resources
 
@@ -141,7 +150,7 @@ If you use AgentRearrange or this report in your research, please cite:
 
 ## References
 
-The full bibliography appears at the end of the LaTeX report. Selected references include:
+The full bibliography appears at the end of [`paper.pdf`](./paper.pdf). Selected references include:
 
 1. Wu, Q., Bansal, G., Zhang, J., Wu, Y., Zhang, S., Zhu, E., Li, B., Jiang, L., Zhang, X., & Wang, C. **AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation.** *arXiv:2308.08155*, 2023.
 
