@@ -152,41 +152,26 @@ If you use AgentRearrange or this report in your research, please cite:
 
 The full bibliography appears at the end of [`paper.pdf`](./paper.pdf). Selected references include:
 
-1. Wu, Q., Bansal, G., Zhang, J., Wu, Y., Zhang, S., Zhu, E., Li, B., Jiang, L., Zhang, X., & Wang, C. **AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation.** *arXiv:2308.08155*, 2023.
-
-2. Hong, S., Zheng, X., Chen, J., Cheng, Y., Wang, J., Zhang, C., Wang, Z., Yau, S. K. S., Lin, Z., Zhou, L., Ran, C., Xiao, L., Wu, C., & Schmidhuber, J. **MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework.** *ICLR*, 2024.
-
-3. Park, J. S., O'Brien, J. C., Cai, C. J., Morris, M. R., Liang, P., & Bernstein, M. S. **Generative Agents: Interactive Simulacra of Human Behavior.** *UIST*, 2023.
-
-4. Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., & Cao, Y. **ReAct: Synergizing Reasoning and Acting in Language Models.** *ICLR*, 2023.
-
-5. Shinn, N., Cassano, F., Gopinath, A., Narasimhan, K., & Yao, S. **Reflexion: Language Agents with Verbal Reinforcement Learning.** *NeurIPS*, 2023.
-
-6. Schick, T., Dwivedi-Yu, J., Dessì, R., Raileanu, R., Lomeli, M., Zettlemoyer, L., Cancedda, N., & Scialom, T. **Toolformer: Language Models Can Teach Themselves to Use Tools.** *NeurIPS*, 2023.
-
-7. Wang, J., Wang, J., Athiwaratkun, B., Zhang, C., & Zou, J. **Mixture-of-Agents Enhances Large Language Model Capabilities.** *arXiv:2406.04692*, 2024.
-
-8. Yao, S., Yu, D., Zhao, J., Shafran, I., Griffiths, T. L., Cao, Y., & Narasimhan, K. **Tree of Thoughts: Deliberate Problem Solving with Large Language Models.** *NeurIPS*, 2023.
-
-9. Wei, J., Wang, X., Schuurmans, D., Bosma, M., Ichter, B., Xia, F., Chi, E., Le, Q., & Zhou, D. **Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.** *NeurIPS*, 2022.
-
-10. Significant Gravitas. **AutoGPT: An Autonomous GPT-4 Experiment.** GitHub, 2023. <https://github.com/Significant-Gravitas/AutoGPT>
-
-11. LangChain, Inc. **LangGraph: Building Stateful, Multi-Actor Applications with LLMs.** GitHub, 2024. <https://github.com/langchain-ai/langgraph>
-
-12. crewAI Inc. **CrewAI: Framework for Orchestrating Role-Playing, Autonomous AI Agents.** GitHub, 2024. <https://github.com/crewAIInc/crewAI>
-
-13. BerriAI. **LiteLLM: Call All LLM APIs Using the OpenAI Format.** GitHub, 2024. <https://github.com/BerriAI/litellm>
-
-14. Anthropic. **Introducing the Model Context Protocol.** 2024. <https://www.anthropic.com/news/model-context-protocol>
-
-15. OpenAI. **GPT-4 Technical Report.** *arXiv:2303.08774*, 2023.
-
-16. Anthropic. **The Claude 3 Model Family: Opus, Sonnet, Haiku.** Technical Report, 2024.
-
-17. Apache Software Foundation. **Apache Airflow: A Platform to Programmatically Author, Schedule, and Monitor Workflows.** 2014–present. <https://airflow.apache.org>
-
-18. Gomez, K., and the Swarms Research Department. **Swarms: The Enterprise-Grade Production-Ready Multi-Agent Orchestration Framework.** GitHub, v12.0.0, 2024–2026. <https://github.com/kyegomez/swarms>
+| # | Authors | Title | Venue | Year | Link |
+|---|---|---|---|---|---|
+| 1 | Wu et al. | AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation | *arXiv:2308.08155* | 2023 | [arXiv](https://arxiv.org/abs/2308.08155) |
+| 2 | Hong et al. | MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework | *ICLR* | 2024 | [arXiv](https://arxiv.org/abs/2308.00352) |
+| 3 | Park, O'Brien, Cai, Morris, Liang, & Bernstein | Generative Agents: Interactive Simulacra of Human Behavior | *UIST* | 2023 | [arXiv](https://arxiv.org/abs/2304.03442) |
+| 4 | Yao, Zhao, Yu, Du, Shafran, Narasimhan, & Cao | ReAct: Synergizing Reasoning and Acting in Language Models | *ICLR* | 2023 | [arXiv](https://arxiv.org/abs/2210.03629) |
+| 5 | Shinn, Cassano, Gopinath, Narasimhan, & Yao | Reflexion: Language Agents with Verbal Reinforcement Learning | *NeurIPS* | 2023 | [arXiv](https://arxiv.org/abs/2303.11366) |
+| 6 | Schick et al. | Toolformer: Language Models Can Teach Themselves to Use Tools | *NeurIPS* | 2023 | [arXiv](https://arxiv.org/abs/2302.04761) |
+| 7 | Wang, Wang, Athiwaratkun, Zhang, & Zou | Mixture-of-Agents Enhances Large Language Model Capabilities | *arXiv:2406.04692* | 2024 | [arXiv](https://arxiv.org/abs/2406.04692) |
+| 8 | Yao, Yu, Zhao, Shafran, Griffiths, Cao, & Narasimhan | Tree of Thoughts: Deliberate Problem Solving with Large Language Models | *NeurIPS* | 2023 | [arXiv](https://arxiv.org/abs/2305.10601) |
+| 9 | Wei et al. | Chain-of-Thought Prompting Elicits Reasoning in Large Language Models | *NeurIPS* | 2022 | [arXiv](https://arxiv.org/abs/2201.11903) |
+| 10 | Significant Gravitas | AutoGPT: An Autonomous GPT-4 Experiment | GitHub | 2023 | [Repo](https://github.com/Significant-Gravitas/AutoGPT) |
+| 11 | LangChain, Inc. | LangGraph: Building Stateful, Multi-Actor Applications with LLMs | GitHub | 2024 | [Repo](https://github.com/langchain-ai/langgraph) |
+| 12 | crewAI Inc. | CrewAI: Framework for Orchestrating Role-Playing, Autonomous AI Agents | GitHub | 2024 | [Repo](https://github.com/crewAIInc/crewAI) |
+| 13 | BerriAI | LiteLLM: Call All LLM APIs Using the OpenAI Format | GitHub | 2024 | [Repo](https://github.com/BerriAI/litellm) |
+| 14 | Anthropic | Introducing the Model Context Protocol | Anthropic News | 2024 | [Article](https://www.anthropic.com/news/model-context-protocol) |
+| 15 | OpenAI | GPT-4 Technical Report | *arXiv:2303.08774* | 2023 | [arXiv](https://arxiv.org/abs/2303.08774) |
+| 16 | Anthropic | The Claude 3 Model Family: Opus, Sonnet, Haiku | Technical Report | 2024 | [PDF](https://www-cdn.anthropic.com/de8ba9b01c9ab7cbabf5c33b80b7bbc618857627/Model_Card_Claude_3.pdf) |
+| 17 | Apache Software Foundation | Apache Airflow: A Platform to Programmatically Author, Schedule, and Monitor Workflows | Project Website | 2014–present | [Website](https://airflow.apache.org) |
+| 18 | Gomez & the Swarms Research Department | Swarms: The Enterprise-Grade Production-Ready Multi-Agent Orchestration Framework | GitHub (v12.0.0) | 2024–2026 | [Repo](https://github.com/kyegomez/swarms) |
 
 ## License
 
