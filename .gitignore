@@ -8,6 +8,7 @@
 *.toc
 *.fmt
 *.fot
+secretive
 *.cb
 *.cb2
 .*.lb
