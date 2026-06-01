@@ -8,8 +8,10 @@
 *.toc
 *.fmt
 *.fot
+.env
 secretive
 *.cb
+agent_workspace/
 *.cb2
 .*.lb
 
