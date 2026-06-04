@@ -1,6 +1,6 @@
 from swarms import Agent, AgentRearrange
 
-writer   = Agent(agent_name="writer",   model_name="gpt-4.1", max_loops=1)
+writer = Agent(agent_name="writer", model_name="gpt-4.1", max_loops=1)
 reviewer = Agent(agent_name="reviewer", model_name="gpt-4.1", max_loops=1)
 
 revise = AgentRearrange(

@@ -1,8 +1,8 @@
 from swarms import Agent, AgentRearrange
 
-a = Agent(agent_name="extract",   model_name="gpt-5.4-mini", max_loops=1)
+a = Agent(agent_name="extract", model_name="gpt-5.4-mini", max_loops=1)
 b = Agent(agent_name="transform", model_name="gpt-5.4-mini", max_loops=1)
-c = Agent(agent_name="load",      model_name="gpt-5.4-mini", max_loops=1)
+c = Agent(agent_name="load", model_name="gpt-5.4-mini", max_loops=1)
 
 etl = AgentRearrange(
     agents=[a, b, c],

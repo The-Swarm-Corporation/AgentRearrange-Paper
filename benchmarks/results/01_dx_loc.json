@@ -1,0 +1,274 @@
+{
+  "per_workflow": [
+    {
+      "workflow": "linear",
+      "framework": "AgentRearrange",
+      "v1_loc": 3,
+      "v2_loc": 3,
+      "delta_loc": 0,
+      "delta_edit_chars": 33,
+      "lines_added": 2,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "linear",
+      "framework": "LangGraph",
+      "v1_loc": 12,
+      "v2_loc": 16,
+      "delta_loc": 4,
+      "delta_edit_chars": 225,
+      "lines_added": 7,
+      "lines_removed": 3
+    },
+    {
+      "workflow": "linear",
+      "framework": "CrewAI",
+      "v1_loc": 8,
+      "v2_loc": 9,
+      "delta_loc": 1,
+      "delta_edit_chars": 117,
+      "lines_added": 4,
+      "lines_removed": 3
+    },
+    {
+      "workflow": "linear",
+      "framework": "AutoGen",
+      "v1_loc": 7,
+      "v2_loc": 8,
+      "delta_loc": 1,
+      "delta_edit_chars": 120,
+      "lines_added": 3,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "fanout",
+      "framework": "AgentRearrange",
+      "v1_loc": 3,
+      "v2_loc": 3,
+      "delta_loc": 0,
+      "delta_edit_chars": 33,
+      "lines_added": 2,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "fanout",
+      "framework": "LangGraph",
+      "v1_loc": 17,
+      "v2_loc": 20,
+      "delta_loc": 3,
+      "delta_edit_chars": 136,
+      "lines_added": 3,
+      "lines_removed": 0
+    },
+    {
+      "workflow": "fanout",
+      "framework": "CrewAI",
+      "v1_loc": 9,
+      "v2_loc": 10,
+      "delta_loc": 1,
+      "delta_edit_chars": 135,
+      "lines_added": 3,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "fanout",
+      "framework": "AutoGen",
+      "v1_loc": 8,
+      "v2_loc": 9,
+      "delta_loc": 1,
+      "delta_edit_chars": 118,
+      "lines_added": 3,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "fanin",
+      "framework": "AgentRearrange",
+      "v1_loc": 3,
+      "v2_loc": 3,
+      "delta_loc": 0,
+      "delta_edit_chars": 33,
+      "lines_added": 2,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "fanin",
+      "framework": "LangGraph",
+      "v1_loc": 18,
+      "v2_loc": 21,
+      "delta_loc": 3,
+      "delta_edit_chars": 148,
+      "lines_added": 3,
+      "lines_removed": 0
+    },
+    {
+      "workflow": "fanin",
+      "framework": "CrewAI",
+      "v1_loc": 9,
+      "v2_loc": 10,
+      "delta_loc": 1,
+      "delta_edit_chars": 118,
+      "lines_added": 4,
+      "lines_removed": 3
+    },
+    {
+      "workflow": "fanin",
+      "framework": "AutoGen",
+      "v1_loc": 8,
+      "v2_loc": 9,
+      "delta_loc": 1,
+      "delta_edit_chars": 117,
+      "lines_added": 3,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "diamond",
+      "framework": "AgentRearrange",
+      "v1_loc": 3,
+      "v2_loc": 3,
+      "delta_loc": 0,
+      "delta_edit_chars": 49,
+      "lines_added": 2,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "diamond",
+      "framework": "LangGraph",
+      "v1_loc": 17,
+      "v2_loc": 20,
+      "delta_loc": 3,
+      "delta_edit_chars": 165,
+      "lines_added": 3,
+      "lines_removed": 0
+    },
+    {
+      "workflow": "diamond",
+      "framework": "CrewAI",
+      "v1_loc": 9,
+      "v2_loc": 10,
+      "delta_loc": 1,
+      "delta_edit_chars": 159,
+      "lines_added": 4,
+      "lines_removed": 3
+    },
+    {
+      "workflow": "diamond",
+      "framework": "AutoGen",
+      "v1_loc": 8,
+      "v2_loc": 9,
+      "delta_loc": 1,
+      "delta_edit_chars": 125,
+      "lines_added": 3,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "revise",
+      "framework": "AgentRearrange",
+      "v1_loc": 3,
+      "v2_loc": 3,
+      "delta_loc": 0,
+      "delta_edit_chars": 49,
+      "lines_added": 2,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "revise",
+      "framework": "LangGraph",
+      "v1_loc": 12,
+      "v2_loc": 16,
+      "delta_loc": 4,
+      "delta_edit_chars": 263,
+      "lines_added": 8,
+      "lines_removed": 4
+    },
+    {
+      "workflow": "revise",
+      "framework": "CrewAI",
+      "v1_loc": 8,
+      "v2_loc": 9,
+      "delta_loc": 1,
+      "delta_edit_chars": 181,
+      "lines_added": 5,
+      "lines_removed": 4
+    },
+    {
+      "workflow": "revise",
+      "framework": "AutoGen",
+      "v1_loc": 7,
+      "v2_loc": 8,
+      "delta_loc": 1,
+      "delta_edit_chars": 125,
+      "lines_added": 3,
+      "lines_removed": 2
+    },
+    {
+      "workflow": "ensemble",
+      "framework": "AgentRearrange",
+      "v1_loc": 7,
+      "v2_loc": 5,
+      "delta_loc": -2,
+      "delta_edit_chars": 87,
+      "lines_added": 3,
+      "lines_removed": 5
+    },
+    {
+      "workflow": "ensemble",
+      "framework": "LangGraph",
+      "v1_loc": 20,
+      "v2_loc": 23,
+      "delta_loc": 3,
+      "delta_edit_chars": 150,
+      "lines_added": 3,
+      "lines_removed": 0
+    },
+    {
+      "workflow": "ensemble",
+      "framework": "CrewAI",
+      "v1_loc": 10,
+      "v2_loc": 11,
+      "delta_loc": 1,
+      "delta_edit_chars": 139,
+      "lines_added": 4,
+      "lines_removed": 3
+    },
+    {
+      "workflow": "ensemble",
+      "framework": "AutoGen",
+      "v1_loc": 9,
+      "v2_loc": 10,
+      "delta_loc": 1,
+      "delta_edit_chars": 114,
+      "lines_added": 3,
+      "lines_removed": 2
+    }
+  ],
+  "totals": {
+    "AgentRearrange": {
+      "v1_loc": 22,
+      "v2_loc": 20,
+      "delta_edit": 284,
+      "delta_added": 13,
+      "delta_removed": 15
+    },
+    "LangGraph": {
+      "v1_loc": 96,
+      "v2_loc": 116,
+      "delta_edit": 1087,
+      "delta_added": 27,
+      "delta_removed": 7
+    },
+    "CrewAI": {
+      "v1_loc": 53,
+      "v2_loc": 59,
+      "delta_edit": 849,
+      "delta_added": 24,
+      "delta_removed": 18
+    },
+    "AutoGen": {
+      "v1_loc": 47,
+      "v2_loc": 53,
+      "delta_edit": 719,
+      "delta_added": 18,
+      "delta_removed": 12
+    }
+  }
+}

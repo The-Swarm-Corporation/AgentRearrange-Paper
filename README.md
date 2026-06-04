@@ -111,6 +111,59 @@ export OPENAI_API_KEY=...      # plus ANTHROPIC_API_KEY / GEMINI_API_KEY for ex.
 python examples/01_minimal_sequential.py
 ```
 
+## Benchmarks
+
+Reproducible benchmarks supporting the paper's claims live in
+[`benchmarks/`](./benchmarks). Each script is self-contained and writes a
+JSON blob, a Markdown table, and a matplotlib chart (PNG).
+
+| # | File | What it measures |
+|---|---|---|
+| 1 | [`01_dx_loc.py`](./benchmarks/01_dx_loc.py) | LOC + Levenshtein edit-distance for 6 workflows × 4 frameworks; cost of inserting a parallel review step. **No LLM calls.** |
+| 2 | [`02_topology_sweep.py`](./benchmarks/02_topology_sweep.py) | 5 fixed agents × 4 topologies (linear, fan-out, diamond, fan-in) on a HuggingFace task suite, scored by an LLM judge. |
+| 3 | [`03_multi_model_ensemble.py`](./benchmarks/03_multi_model_ensemble.py) | Fan-out/fan-in (GPT+Claude+Gemini → synthesizer) vs each model alone on MMLU-Pro / GPQA / HumanEval. |
+| 4 | [`04_context_accumulation.py`](./benchmarks/04_context_accumulation.py) | Quality + tokens-into-final-agent as a function of flow length K∈{2..10}, with and without an `Agent.context_length` cap. |
+| 5 | [`05_speed.py`](./benchmarks/05_speed.py) | Wall-clock latency on an equivalent diamond workflow in AgentRearrange vs LangGraph / CrewAI / AutoGen. |
+
+### Run all benchmarks
+
+A single orchestrator runs every benchmark and consolidates every chart
+into `benchmarks/charts/`:
+
+```bash
+pip install -U swarms datasets matplotlib tiktoken
+pip install langgraph crewai pyautogen        # optional comparison frameworks for bench 1 & 5
+
+export OPENAI_API_KEY=...
+export ANTHROPIC_API_KEY=...                  # bench 3 only
+export GEMINI_API_KEY=...                     # bench 3 only
+
+# Smoke run (small N per benchmark, costs a few cents):
+python benchmarks/run_all.py --limit 3 --clean
+
+# Paper run (large N, ~$5–$15 depending on judge model):
+python benchmarks/run_all.py --full --clean
+
+# Run a subset by ID:
+python benchmarks/run_all.py --only 1,3 --limit 5
+```
+
+After it finishes:
+
+```bash
+ls benchmarks/charts/
+# 01_dx_loc.png 01_dx_loc.json 01_dx_loc.md
+# 02_topology_sweep.png ...
+# 03_ensemble_mmlu_pro.png ...
+# 04_context_accumulation.png 04_context_accumulation.csv ...
+# 05_speed.png ...
+```
+
+Benchmarks whose required API keys are missing print "skipped" and the
+orchestrator moves on — they do not fail the run. See
+[`benchmarks/README.md`](./benchmarks/README.md) for per-benchmark details
+and per-script flags.
+
 ## Resources
 
 | Resource | Location |
