@@ -5,22 +5,24 @@ self-contained and runnable on its own. Defaults are small (`--limit 5`) so a
 smoke run costs cents; pass `--full` to reproduce the paper numbers.
 
 All scripts write a JSON blob (`<name>.json`), a Markdown table
-(`<name>.md`), and a matplotlib chart (`<name>.png`) — by default into
-`benchmarks/results/`. Pass `--out <prefix>` to redirect them anywhere
-(this is how `run_all.py` consolidates every chart into `charts/`).
+(`<name>.md`), and a matplotlib chart (`<name>.png`) — and benches 2, 3,
+and 4 additionally write a CSV (`<name>.csv`) — into `benchmarks/results/`
+by default. Pass `--out <prefix>` to redirect them anywhere.
 
 To run everything in one shot:
 
 ```bash
 python benchmarks/run_all.py --limit 3           # smoke run
 python benchmarks/run_all.py --full              # paper run
-python benchmarks/run_all.py --only 1,3 --clean  # subset, wipe charts/ first
+python benchmarks/run_all.py --only 1,3 --clean  # subset, wipe results/ first
 ```
 
 `run_all.py` invokes each benchmark as a subprocess with
-`--out benchmarks/charts/<NN>_<name>`, so every `.png`, `.json`, `.md`
-ends up under `benchmarks/charts/`. Benchmarks whose required API keys
-are missing are skipped (not failed).
+`--out benchmarks/results/<NN>_<name>_<YYYY-MM-DD_HH-MM-SS>`, so every
+artifact (`.png`, `.json`, `.md`, `.csv`) for a given run shares one
+timestamp suffix and lives under `benchmarks/results/`. Re-running never
+clobbers prior output. Benchmarks whose required API keys are missing
+are skipped (not failed).
 
 | # | File | What it measures | Cost defaults |
 |---|---|---|---|
@@ -58,8 +60,7 @@ before any `--full` run.
 
 | Location | Contents |
 |---|---|
-| `benchmarks/results/` | Outputs from running individual scripts directly |
-| `benchmarks/charts/`  | Outputs from `run_all.py`, consolidating every benchmark's PNG + JSON + MD |
+| `benchmarks/results/` | All outputs: scripts run directly write `<NN>_<name>.{json,md,png,csv}`; `run_all.py` appends a `_YYYY-MM-DD_HH-MM-SS` timestamp to keep runs distinct |
 | `benchmarks/equivalents/` | Reference workflow implementations in AR, LangGraph, CrewAI, AutoGen — used by benches 1 (DX) and 5 (Speed) |
 
 ## Equivalents

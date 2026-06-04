@@ -129,8 +129,10 @@ JSON blob, a Markdown table, and a matplotlib chart (PNG).
 
 ### Run all benchmarks
 
-A single orchestrator runs every benchmark and consolidates every chart
-into `benchmarks/charts/`:
+A single orchestrator runs every benchmark and writes every artifact
+(JSON, Markdown, CSV, PNG chart) into `benchmarks/results/`. Each run
+gets a shared timestamp suffix, so re-running never clobbers prior
+output:
 
 ```bash
 pip install -U swarms datasets matplotlib tiktoken
@@ -141,24 +143,27 @@ export ANTHROPIC_API_KEY=...                  # bench 3 only
 export GEMINI_API_KEY=...                     # bench 3 only
 
 # Smoke run (small N per benchmark, costs a few cents):
-python benchmarks/run_all.py --limit 3 --clean
+python benchmarks/run_all.py --limit 3
 
 # Paper run (large N, ~$5–$15 depending on judge model):
-python benchmarks/run_all.py --full --clean
+python benchmarks/run_all.py --full
 
 # Run a subset by ID:
 python benchmarks/run_all.py --only 1,3 --limit 5
+
+# Wipe results/ before running:
+python benchmarks/run_all.py --limit 3 --clean
 ```
 
 After it finishes:
 
 ```bash
-ls benchmarks/charts/
-# 01_dx_loc.png 01_dx_loc.json 01_dx_loc.md
-# 02_topology_sweep.png ...
-# 03_ensemble_mmlu_pro.png ...
-# 04_context_accumulation.png 04_context_accumulation.csv ...
-# 05_speed.png ...
+ls benchmarks/results/
+# 01_dx_loc_2026-06-04_13-34-31.{png,json,md}
+# 02_topology_sweep_2026-06-04_13-34-31.{png,json,md,csv}
+# 03_ensemble_mmlu_pro_2026-06-04_13-34-31.{png,json,md,csv}
+# 04_context_accumulation_2026-06-04_13-34-31.{png,json,md,csv}
+# 05_speed_2026-06-04_13-34-31.{png,json,md}
 ```
 
 Benchmarks whose required API keys are missing print "skipped" and the

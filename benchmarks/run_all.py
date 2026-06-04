@@ -1,9 +1,12 @@
 """
-Run every benchmark sequentially and consolidate every produced chart
-into a single `benchmarks/charts/` directory.
+Run every benchmark sequentially and consolidate every produced artifact
+into `benchmarks/results/`, with a shared timestamp suffix per run so
+multiple runs do not clobber each other.
 
-Each child benchmark is invoked as a subprocess with `--out <charts>/<name>`,
-so its `.png`, `.json`, `.md` (and `.csv` for #4) all land in the charts dir.
+Each child benchmark is invoked as a subprocess with
+`--out results/<NN>_<name>_<YYYY-MM-DD_HH-MM-SS>`,
+so its `.png`, `.json`, `.md`, and `.csv` all land in `results/` under
+the same timestamp.
 
 Cost guardrail: forwards `--limit` / `--full` flags to every child.
 
@@ -18,6 +21,7 @@ benchmark 3 additionally wants ANTHROPIC_API_KEY and GEMINI_API_KEY.
 
 from __future__ import annotations
 import argparse
+import datetime as _dt
 import shutil
 import subprocess
 import sys
@@ -25,8 +29,9 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-CHARTS = HERE / "charts"
-CHARTS.mkdir(parents=True, exist_ok=True)
+RESULTS = HERE / "results"
+RESULTS.mkdir(parents=True, exist_ok=True)
+RUN_TS = _dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 
 BENCHES = [
@@ -68,11 +73,13 @@ BENCHES = [
 ]
 
 
-def run_bench(b: dict, limit: int, full: bool, extra_global: list[str]) -> dict:
+def run_bench(
+    b: dict, limit: int, full: bool, extra_global: list[str], ts: str
+) -> dict:
     import os
 
     script = HERE / b["script"]
-    out_base = CHARTS / f"{b['id']:02d}_{b['name']}"
+    out_base = RESULTS / f"{b['id']:02d}_{b['name']}_{ts}"
     cmd = [sys.executable, str(script), "--out", str(out_base)]
     if full:
         cmd.append("--full")
@@ -123,20 +130,27 @@ def main():
         help="comma list of benchmark IDs to run (e.g. '1,3')",
     )
     parser.add_argument(
-        "--clean", action="store_true", help="delete charts/ before running"
+        "--clean",
+        action="store_true",
+        help="delete results/ before running",
+    )
+    parser.add_argument(
+        "--timestamp",
+        default=RUN_TS,
+        help="suffix appended to every output file (default: now, YYYY-MM-DD_HH-MM-SS)",
     )
     args, extra = parser.parse_known_args()
 
-    if args.clean and CHARTS.exists():
-        shutil.rmtree(CHARTS)
-        CHARTS.mkdir()
+    if args.clean and RESULTS.exists():
+        shutil.rmtree(RESULTS)
+        RESULTS.mkdir()
 
     only = parse_only(args.only)
     statuses = []
     for b in BENCHES:
         if only is not None and b["id"] not in only:
             continue
-        statuses.append(run_bench(b, args.limit, args.full, extra))
+        statuses.append(run_bench(b, args.limit, args.full, extra, args.timestamp))
 
     # Summary
     print("\n" + "=" * 72 + "\nSUMMARY\n" + "=" * 72)
@@ -148,9 +162,9 @@ def main():
             extra = "  (" + s.get("reason", "") + ")"
         print(f"{s['id']:<4}{s['name']:<26}{s['status']:<10}{tm:>8}{extra}")
 
-    # Collect chart manifest
-    pngs = sorted(CHARTS.glob("*.png"))
-    print(f"\nCharts in {CHARTS}/  ({len(pngs)} files):")
+    # Collect chart manifest for this run only (matches timestamp suffix).
+    pngs = sorted(RESULTS.glob(f"*_{args.timestamp}.png"))
+    print(f"\nThis run's charts in {RESULTS}/  ({len(pngs)} files):")
     for p in pngs:
         print(f"  {p.name}")
 
