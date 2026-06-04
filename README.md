@@ -1,5 +1,7 @@
 # AgentRearrange: A General-Purpose Multi-Agent Orchestrator
 
+![Image of agent rearrange](diagram.png)
+
 > A Technical Report on the `AgentRearrange` primitive in the [Swarms](https://github.com/kyegomez/swarms) framework.
 
 [![Paper (PDF)](https://img.shields.io/badge/Paper-PDF-red.svg)](./paper.pdf)

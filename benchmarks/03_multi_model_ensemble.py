@@ -21,10 +21,13 @@ Run:
 Outputs:
     benchmarks/results/03_ensemble_<suite>.json
     benchmarks/results/03_ensemble_<suite>.md
+    benchmarks/results/03_ensemble_<suite>.csv
+    benchmarks/results/03_ensemble_<suite>.png
 """
 
 from __future__ import annotations
 import argparse
+import csv
 import io
 import json
 import re
@@ -270,7 +273,6 @@ def main():
     }
 
     results: dict[str, dict] = {}
-    per_example: list[dict] = []
 
     for cond, fn in conditions.items():
         correct = 0
@@ -346,6 +348,58 @@ def main():
     md_text = "\n".join(md)
     Path(out_base + ".md").write_text(md_text)
 
+    # CSV — two sheets: per-condition summary, and per-example long-format.
+    with open(out_base + ".csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["# per_condition"])
+        w.writerow(
+            [
+                "condition",
+                "n",
+                "correct",
+                "accuracy",
+                "tokens_in_total",
+                "tokens_out_total",
+                "tokens_per_correct",
+                "wall_s_total",
+            ]
+        )
+        for cond, r in results.items():
+            tpc = (
+                ""
+                if r["tokens_per_correct"] is None
+                else f"{r['tokens_per_correct']:.1f}"
+            )
+            w.writerow(
+                [
+                    cond,
+                    r["n"],
+                    r["correct"],
+                    f"{r['accuracy']:.4f}",
+                    r["tokens_in_total"],
+                    r["tokens_out_total"],
+                    tpc,
+                    f"{r['wall_s_total']:.2f}",
+                ]
+            )
+        w.writerow([])
+        w.writerow(["# per_example"])
+        w.writerow(
+            ["condition", "example_idx", "correct", "tokens_in", "tokens_out", "wall_s"]
+        )
+        for cond, r in results.items():
+            for d in r["per_example"]:
+                w.writerow(
+                    [
+                        cond,
+                        d["idx"],
+                        int(d["correct"]),
+                        d["tokens_in"],
+                        d["tokens_out"],
+                        f"{d['wall_s']:.2f}",
+                    ]
+                )
+
     # Plot
     try:
         import matplotlib.pyplot as plt
@@ -384,7 +438,7 @@ def main():
         print(f"[warn] plotting skipped: {e}")
 
     print("\n" + md_text)
-    print(f"\nWrote {out_base}.json and {out_base}.md")
+    print(f"\nWrote {out_base}.json, .md, .csv")
 
 
 if __name__ == "__main__":

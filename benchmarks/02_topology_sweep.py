@@ -22,10 +22,13 @@ Run:
 Outputs:
     benchmarks/results/02_topology_sweep.json
     benchmarks/results/02_topology_sweep.md
+    benchmarks/results/02_topology_sweep.csv     (long-format, plot-ready)
+    benchmarks/results/02_topology_sweep.png
 """
 
 from __future__ import annotations
 import argparse
+import csv
 import json
 import random
 import re
@@ -232,6 +235,25 @@ def main():
     md_text = "\n".join(md)
     Path(args.out + ".md").write_text(md_text)
 
+    # CSV — three concatenated sections, distinguished by a leading "#" row.
+    with open(args.out + ".csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["# per_topology"])
+        w.writerow(["topology", "flow", "net_wins", "wall_time_s", "n_tasks"])
+        for n in sorted(names, key=lambda x: -score[x]):
+            w.writerow([n, TOPOLOGIES[n], score[n], f"{timings[n]:.2f}", len(tasks)])
+        w.writerow([])
+        w.writerow(["# pair_matrix"])
+        w.writerow(["winner", "loser", "wins"])
+        for win, losers in pair_wins.items():
+            for los, cnt in losers.items():
+                w.writerow([win, los, cnt])
+        w.writerow([])
+        w.writerow(["# pair_ties"])
+        w.writerow(["topology_a", "topology_b", "ties"])
+        for (a, b), v in pair_ties.items():
+            w.writerow([a, b, v])
+
     # Plot
     try:
         import matplotlib.pyplot as plt
@@ -280,7 +302,7 @@ def main():
         print(f"[warn] plotting skipped: {e}")
 
     print("\n" + md_text)
-    print(f"\nWrote {args.out}.json and {args.out}.md")
+    print(f"\nWrote {args.out}.json, .md, .csv")
 
 
 if __name__ == "__main__":
