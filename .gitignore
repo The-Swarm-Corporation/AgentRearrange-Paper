@@ -9,6 +9,7 @@
 *.fmt
 *.fot
 .env
+ruff_cache/
 secretive
 *.cb
 agent_workspace/
