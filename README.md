@@ -1,6 +1,6 @@
 # AgentRearrange: A General-Purpose Multi-Agent Orchestrator
 
-![Image of agent rearrange](diagram.png)
+![Image of agent rearrangfffe](diagram.png)
 
 > A Technical Report on the `AgentRearrange` primitive in the [Swarms](https://github.com/kyegomez/swarms) framework.
 
