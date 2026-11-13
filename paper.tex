@@ -1,702 +1,879 @@
-\documentclass[11pt,a4paper]{article}
+% AgentRearrange: Simplifying Multi-Agent Workflow Orchestration
+% Single-file source. Build with: tectonic paper.tex  (or pdflatex twice)
+\documentclass[11pt]{article}
 
-% --- Single-column, continuous layout ---
-\usepackage[margin=1in]{geometry}
-\usepackage{parskip}
-\usepackage{microtype}
-
-% --- Typography ---
+\usepackage[margin=1in,top=0.85in,bottom=0.95in,headheight=0pt,headsep=0pt,footskip=0.4in]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-
-% --- Graphics, diagrams, code ---
-\usepackage{graphicx}
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, backgrounds, calc}
-\usepackage{listings}
-\usepackage{xcolor}
-\usepackage{seqsplit}
-\usepackage{booktabs}
-\usepackage{array}
+\usepackage{microtype}
 \usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsthm}
-\newtheorem{theorem}{Theorem}
-\usepackage{hyperref}
-\hypersetup{colorlinks=true, linkcolor=blue!50!black, urlcolor=blue!50!black, citecolor=blue!50!black, breaklinks=true}
-\usepackage{xurl}  % must come after hyperref; enables URL line breaks
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{url}
+\usepackage{enumitem}
+\usepackage{authblk}
+\usepackage{fancyhdr}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepgfplotslibrary{groupplots}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
 
-% --- Allow long inline paths/URLs to break across lines ---
-\sloppy
+% GitHub link in the footer of every page, the first included.
+\newcommand{\repo}{https://github.com/kyegomez/swarms}
+\fancypagestyle{paper}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \fancyfoot[L]{\footnotesize\href{\repo}{github.com/kyegomez/swarms}}%
+  \fancyfoot[R]{\footnotesize\thepage}%
+}
+\pagestyle{paper}
+
+\definecolor{codebg}{HTML}{F6F7F9}
+\definecolor{codekw}{HTML}{8B1A1A}
+\definecolor{codestr}{HTML}{1F5F8B}
+\definecolor{codecom}{HTML}{6B7280}
+\lstdefinestyle{py}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekw},
+  stringstyle=\color{codestr},
+  commentstyle=\color{codecom}\itshape,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{black!15},
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  aboveskip=8pt,
+  belowskip=4pt,
+  xleftmargin=4pt,
+  xrightmargin=4pt,
+  literate={->}{{\texttt{->}}}2,
+}
+\lstdefinestyle{plain}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{black!15},
+  columns=fullflexible,
+  keepspaces=true,
+  aboveskip=8pt,
+  belowskip=4pt,
+  xleftmargin=4pt,
+  xrightmargin=4pt,
+}
+\lstset{style=py}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\AR}{\textsc{AgentRearrange}}
+\captionsetup{font=small,labelfont=bf}
+\setlist{itemsep=2pt,topsep=4pt}
 \emergencystretch=3em
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\newcommand{\listinghead}[1]{\medskip\noindent\textbf{#1}\par\nopagebreak}
 
-% Helper: a breakable typewriter path (allows linebreaks at / and _)
-\newcommand{\bpath}[1]{\texttt{\seqsplit{#1}}}
-
-% --- Listings style for Python ---
-\definecolor{codebg}{RGB}{248,248,250}
-\definecolor{codecomment}{RGB}{106,135,89}
-\definecolor{codekeyword}{RGB}{0,82,156}
-\definecolor{codestring}{RGB}{163,21,21}
-\definecolor{codenumber}{RGB}{120,120,120}
-
-\lstdefinestyle{pystyle}{
-    backgroundcolor=\color{codebg},
-    basicstyle=\ttfamily\small,
-    commentstyle=\color{codecomment}\itshape,
-    keywordstyle=\color{codekeyword}\bfseries,
-    stringstyle=\color{codestring},
-    numberstyle=\tiny\color{codenumber},
-    numbers=left,
-    numbersep=8pt,
-    showstringspaces=false,
-    breaklines=true,
-    frame=single,
-    rulecolor=\color{black!20},
-    framerule=0.4pt,
-    aboveskip=10pt,
-    belowskip=10pt,
-    captionpos=b,
-    language=Python,
-    tabsize=4,
+% Plot styles, one per framework.
+\pgfplotsset{
+  sw/.style={color={rgb,255:red,214;green,39;blue,40},mark=*,line width=1.6pt,mark size=1.8pt},
+  lg/.style={color={rgb,255:red,31;green,119;blue,180},mark=square*,line width=0.8pt,mark size=1.5pt},
+  lga/.style={color={rgb,255:red,23;green,162;blue,216},mark=diamond*,line width=0.8pt,mark size=1.8pt,densely dashed},
+  lc/.style={color={rgb,255:red,44;green,160;blue,44},mark=triangle*,line width=0.8pt,mark size=1.8pt},
+  ag/.style={color={rgb,255:red,148;green,103;blue,189},mark=triangle*,mark options={rotate=180},line width=0.8pt,mark size=1.8pt},
+  an/.style={color={rgb,255:red,255;green,127;blue,14},mark=pentagon*,line width=0.8pt,mark size=1.8pt},
+  cr/.style={color={rgb,255:red,110;green,110;blue,110},mark=x,line width=0.8pt,mark size=2.2pt},
+  bench/.style={
+    xmode=log, ymode=log, log basis x=2,
+    xtick={8,32,128,512}, xticklabels={8,32,128,512},
+    width=0.49\linewidth, height=3.9cm,
+    grid=major, grid style={black!10},
+    tick label style={font=\scriptsize},
+    label style={font=\footnotesize},
+    title style={font=\footnotesize,yshift=-4pt},
+    axis lines=left,
+  },
 }
-\lstset{style=pystyle}
 
-% --- TikZ shared styles ---
-\tikzset{
-    agent/.style={
-        rectangle, rounded corners=2pt,
-        draw=blue!60!black, fill=blue!8,
-        minimum width=2.4cm, minimum height=0.9cm,
-        font=\small\sffamily, align=center, thick
-    },
-    director/.style={
-        rectangle, rounded corners=2pt,
-        draw=red!60!black, fill=red!10,
-        minimum width=2.6cm, minimum height=0.9cm,
-        font=\small\sffamily\bfseries, align=center, thick
-    },
-    io/.style={
-        ellipse, draw=black!60, fill=gray!10,
-        minimum width=2cm, minimum height=0.7cm,
-        font=\small\sffamily, align=center
-    },
-    arrow/.style={-Latex, thick, draw=black!70},
-    parallelarrow/.style={-Latex, thick, draw=orange!70!black, dashed},
-    group/.style={
-        rectangle, rounded corners=4pt,
-        draw=black!30, dashed, fill=yellow!4,
-        inner sep=8pt
-    }
-}
+\title{\textbf{AgentRearrange: Simplifying Multi-Agent Workflow Orchestration}}
+
+\author{Kye Gomez}
+\author{Steve-Dusty}
+\author{Adi Chaudhary}
+\author{Ayaan Gazali}
+\author{Shryuk Grandhi}
+\author{Wyatt Stanke}
+\author{Taddy}
+\author{Vidith Salla}
+\author{NingLin Liu}
+\author{Nicolas Nahas}
+\affil{Swarms Corp\\ Correspondence: \href{mailto:kye@swarms.world}{kye@swarms.world}}
+\date{November 2026}
+\renewcommand\Authfont{\normalsize}
+\renewcommand\Affilfont{\small}
 
 \begin{document}
+\maketitle
+\thispagestyle{paper}
 
-% --- Centered traditional title block ---
-\begingroup
-\setlength{\parindent}{0pt}
-\noindent\rule{\textwidth}{1.6pt}
-\vspace{10pt}
-\begin{center}
-{\LARGE\bfseries AgentRearrange: A General-Purpose Multi-Agent Orchestrator\par}
-\end{center}
-\vspace{4pt}
-\noindent\rule{\textwidth}{0.6pt}
-\vspace{14pt}
-
-\begin{center}
-{\normalsize Kye Gomez$^{1,*}$,\quad Kuanting Kuo$^{1}$,\quad Aditya Chaudhary$^{1}$,\quad Hugh Nguyen$^{1}$,\quad Swarms Research Team$^{1}$\par}
-\vspace{6pt}
-{\small $^{1}$Swarms\qquad $^{*}$Project Lead\par}
-\vspace{4pt}
-{\small Correspondence: \href{mailto:kye@swarms.world}{kye@swarms.world}\par}
-\end{center}
-
-\vspace{6pt}
-\begin{center}{\large\bfseries Abstract}\end{center}
-\vspace{-4pt}
-
-\begin{quote}
+\begin{abstract}
 \noindent
-This report introduces \textbf{AgentRearrange}, a multi-agent orchestration primitive in the Swarms framework that lets engineers express arbitrary mixtures of sequential and concurrent agent execution through a tiny, readable flow grammar. Where dedicated structures such as \texttt{SequentialWorkflow} and \texttt{ConcurrentWorkflow} fix a single topology at construction time, AgentRearrange separates \emph{topology} from \emph{instantiation}: a workflow is a string like \texttt{"researcher -> writer, reviewer -> editor"}, parsed at runtime into an executable schedule. We describe the motivation behind the abstraction, the parsing and scheduling model, the team-awareness mechanism that lets each agent see its upstream and downstream neighbors, and the supporting features for batched, concurrent, asynchronous, and token-streaming execution. We then present architectural diagrams for the canonical patterns AgentRearrange enables (linear pipelines, fan-out/fan-in, diamonds, and human-in-the-loop hops), followed by runnable code examples. The implementation is open-source under Apache-2.0, ships in the \texttt{swarms} package on PyPI, and is available at \href{https://github.com/kyegomez/swarms}{\texttt{github.com/kyegomez/swarms}}.
-\end{quote}
-
-\vspace{10pt}
-\endgroup
+Multi-agent applications are usually built by wiring language-model agents into a graph: the developer declares nodes, declares edges, compiles the result, and repeats the exercise whenever the shape of the workflow changes. We describe \AR{}, the workflow primitive of the open-source Swarms framework, which replaces that construction with one string. Two operators carry the whole language: \code{->} places steps in sequence and a comma runs the agents of a step in parallel, so \code{"Planner -> Tech, Market, Legal -> Writer"} is a complete five-agent workflow. Because a step may itself be a named workflow, the language expresses every series-parallel composition of agents, and changing the topology is a string assignment that is validated on the spot.
+We give the grammar and execution semantics of the language, compare the code it takes to express the same workflow in LangGraph, AutoGen, LangChain, Agno and CrewAI, and release a benchmark suite that measures orchestration overhead, memory, construction cost and re-specification cost over four workflow shapes from 8 to 512 agents with a stubbed model. For wide workflows, \AR{} adds 37 to 42\,ms of overhead at 512 agents, 2.5 times less than LangGraph with function nodes and about 9 times less than LangGraph with agent nodes, and it changes topology between 9 and about 100 times faster than rebuilding a LangGraph graph. For chains of hundreds of steps it is slower than frameworks that do constant work per step, because every agent reads a growing shared conversation.
+We also report where the design costs something: the language has no conditional edges or cycles, every agent reads the whole shared conversation, and parallel steps hold one thread per agent.
+\end{abstract}
 
 \section{Introduction}
 
-The dominant pattern in multi-agent systems literature is to pick a topology (sequential, concurrent, hierarchical, debate) and bake it into a class. Each topology becomes its own primitive: \texttt{SequentialWorkflow} for pipelines, \texttt{ConcurrentWorkflow} for fan-outs, \texttt{HierarchicalSwarm} for boss-worker delegation, and so on. This design is clean for textbook examples but becomes awkward the moment a real-world workflow needs a \emph{mix} of behaviors, for instance a research agent feeding two parallel writers whose drafts are then merged by an editor.
+A single language-model agent is a loop around a model call, often one that interleaves reasoning with tool use~\cite{react}. A multi-agent system is a set of such loops plus a rule for who runs when and who sees whose output~\cite{survey_guo,survey_wang}. Most of the engineering effort in a multi-agent application goes into the second part, and it is also where such systems tend to break: a study of failures in multi-agent systems attributes a large share of them to how the system is specified and how agents are coordinated, not to the individual agents~\cite{mast}. The dominant way to express it is a graph API: LangGraph~\cite{langgraph} builds a \code{StateGraph} from \code{add\_node} and \code{add\_edge} calls and compiles it; AutoGen~\cite{autogen} offers a \code{DiGraphBuilder} that feeds a \code{GraphFlow} team; CrewAI~\cite{crewai} attaches agents to an ordered list of tasks; Agno~\cite{agno} nests \code{Step} and \code{Parallel} objects inside a \code{Workflow}.
 
-The Swarms framework introduces \textbf{AgentRearrange}, a structure whose only configuration is a flow string and a list of agents. The flow string is a compact domain-specific language (DSL) with two operators: \texttt{->} denotes sequential dependence ("the right side waits for the left"), and \texttt{,} denotes concurrent execution on the same upstream input. These two operators compose, so workflows like \texttt{"a -> b, c -> d"} ("a runs, then b and c run in parallel, then d aggregates") read almost like ASCII art of the underlying DAG.
+These APIs are general, and generality has a price that is paid on every workflow, including the simple ones. A widely read practitioner guide~\cite{anthropic_agents} describes a small set of recurring patterns, and three of them are purely structural: a chain in which each step refines the last, a fan-out in which several agents work on the same input at once, and a fan-out followed by a step that merges the results. For these shapes a graph API asks the developer to write roughly two calls per agent, to keep node names and edge endpoints consistent by hand, and to rebuild and recompile when an agent is moved.
 
-The contribution of AgentRearrange is not novel scheduling theory; topological execution of a DAG is decades old. The contribution is \emph{ergonomic}: the abstraction lowers the cognitive cost of describing a workflow to the point where engineers can iterate on topology as quickly as they iterate on prompts. A workflow is no longer a class hierarchy; it is a string. Reordering agents, inserting a parallel review step, or fanning out to multiple model providers is a one-line edit. This matters in practice because most multi-agent systems do not arrive at their final shape on day one; they evolve through experimentation, and the friction of restructuring an orchestration is often the bottleneck.
+\AR{} starts from the observation that these shapes are all compositions of two operations, \emph{then} and \emph{together}, and that two operations fit in a string. The name and the notation follow \code{einsum}~\cite{numpy} and einops~\cite{einops}, which showed that a compact string can replace a family of tensor-manipulation calls without losing clarity. In \AR{}, a workflow is written as
 
-This report walks through why the abstraction exists, how it is implemented in \bpath{swarms/structs/agent\_rearrange.py},\footnote{\href{https://github.com/kyegomez/swarms/blob/master/swarms/structs/agent_rearrange.py}{\bpath{swarms/structs/agent\_rearrange.py}} on GitHub.} the patterns it enables, and the supporting features (streaming, batched execution, asynchronous integration) that turn the core primitive into a production-ready building block.
+\begin{lstlisting}[style=plain]
+Planner -> Tech, Market, Legal -> Writer
+\end{lstlisting}
 
-\section{Background and Motivation}
+\noindent which reads as it runs: the planner first, three specialists together, then the writer. The agents are ordinary objects defined once; the string only arranges them, and rearranging them is editing the string.
 
-Early Swarms users repeatedly hit the same wall. They would prototype a research workflow with \texttt{SequentialWorkflow}, get it working, then realize the middle stage should actually be three agents running in parallel and merging their outputs. The fix required swapping orchestration classes, refactoring the agent list, and re-threading the conversation history. The workflow shape was \emph{baked into the orchestrator type}, so every shape change cost a rewrite.
+This paper makes four contributions.
+\begin{enumerate}
+  \item A precise description of the \AR{} flow language: its grammar, its validation rules and its execution semantics, including nested workflows (Section~\ref{sec:language}) and the shared-conversation execution model (Section~\ref{sec:execution}).
+  \item A side-by-side comparison of the code needed to express the same workflow in six frameworks, with a count of the calls each one requires as a function of workflow size (Section~\ref{sec:code}).
+  \item An open benchmark suite, \code{tests/benchmark\_agent\_rearrange.py} in the Swarms repository, that runs the same four workflow shapes through each framework with a stubbed model and reports orchestration overhead, memory, threads, construction time and re-specification time (Section~\ref{sec:eval}).
+  \item An account of the limits of the approach, stated as plainly as the results (Section~\ref{sec:limits}).
+\end{enumerate}
 
-A second class of users wanted to A/B test workflow topologies. Given five agents, does \texttt{a -> b -> c -> d -> e} produce better outputs than \texttt{a -> (b, c) -> (d, e)}? Or than \texttt{a -> b -> (c, d) -> e}? Answering these questions required maintaining several orchestrator instances, each in a slightly different shape, often with subtle drift in how they handled conversation state.
+\section{Background and Related Work}
+\label{sec:related}
 
-The third pain point was \emph{readability}. Reading a 30-line orchestrator setup with conditional graph construction tells you very little about what the workflow actually does. By contrast, the string \texttt{"researcher -> analyst, critic -> editor -> publisher"} tells a reader exactly how data flows in fewer characters than a tweet.
+\paragraph{Graph-based orchestration.}
+LangGraph~\cite{langgraph} models an application as a state machine. Nodes are functions or agents that read and update a typed state, edges may be conditional, cycles are allowed, and state can be checkpointed. AutoGen~\cite{autogen} began with conversation patterns between agents and later added \code{GraphFlow}, a directed graph of agents with optional edge conditions. Both can express anything \AR{} can and much that it cannot. Their cost is verbosity for simple shapes and a compile step between specification and execution. Semantic Kernel~\cite{semantic_kernel} and Magentic-One~\cite{magentic_one} take a third route, in which an orchestrating agent plans the order of work at run time.
 
-AgentRearrange was designed to collapse these three problems into one. The design constraints were:
+\paragraph{Pipelines and expression languages.}
+LangChain's expression language~\cite{langchain} composes runnables with the \code{|} operator and runs dictionaries of runnables in parallel. It is concise, but it composes data transformations and not agents: the developer writes the function that turns the outputs of one parallel step into the input of the next. Agno~\cite{agno} workflows nest \code{Step}, \code{Parallel}, \code{Loop} and \code{Router} objects. CrewAI~\cite{crewai} runs an ordered list of tasks, each bound to an agent, and marks tasks asynchronous to run them side by side. DSPy~\cite{dspy} composes prompt programs as modules and optimises them, an orthogonal concern.
 
-\begin{itemize}
-    \item \textbf{Topology as data, not code.} Flow lives in a string that can be edited, generated, or fed from a config file, not a class hierarchy.
-    \item \textbf{Grammar minimal enough to memorize.} Two operators, both ASCII, both readable left-to-right.
-    \item \textbf{One conversation, one source of truth.} Every agent reads from and writes to the same \texttt{Conversation} object so context propagates correctly across both sequential and parallel hops.
-    \item \textbf{No special-casing.} Every other Swarms structure ultimately reduces to a flow string; if AgentRearrange covers the general case, the dedicated structures become specialized factories on top of it.
-    \item \textbf{Production-ready surface.} Sync, async, streaming, batched, and concurrent execution all available without changing the flow.
-\end{itemize}
+\paragraph{Role-based and conversational systems.}
+CAMEL~\cite{camel}, MetaGPT~\cite{metagpt} and ChatDev~\cite{chatdev} fix the organisation of agents in advance, as role-play pairs or as a software company with a standard operating procedure. AgentVerse~\cite{agentverse} and generative agents~\cite{generative_agents} study larger groups whose interaction structure emerges from the simulation. Mixture-of-Agents~\cite{moa} fixes a layered topology in which each layer of agents reads the answers of the layer before. That topology is exactly a flow of parallel steps, and is one line in the language described here.
 
-The result is the primitive described in the remainder of this report.
+\paragraph{Parallel sampling and debate.}
+Several results show that running the same question through many model calls and combining the answers improves accuracy: self-consistency votes over sampled reasoning paths~\cite{self_consistency}, multi-agent debate lets agents revise in rounds after reading one another~\cite{debate}, and simple sampling-and-voting keeps improving as agents are added~\cite{more_agents}. Tree of Thoughts~\cite{tot} searches over branches of partial solutions. Structurally these are fan-outs, or fan-outs repeated in layers, which is the shape the comma operator states.
 
-\section{Core Design: The Flow DSL}
+\paragraph{Topology as an object of optimisation.}
+A recent line of work treats the arrangement of agents as something to search over and not to hand-write. GPTSwarm~\cite{gptswarm} represents a system as a computational graph and optimises its edges; DyLAN~\cite{dylan} selects agents and their connections per task; MacNet~\cite{macnet} studies directed acyclic topologies of up to a thousand agents; ADAS~\cite{adas} and AFlow~\cite{aflow} search the space of agentic systems and workflows directly, and LLMCompiler~\cite{llmcompiler} plans a dependency graph of calls so that independent ones run in parallel. This work needs a representation of topology that is compact, easy to generate and cheap to validate and to swap. A flow string is one such representation, and Section~\ref{sec:eval} measures the cost of swapping it.
 
-The flow string is the heart of AgentRearrange. Its grammar fits on one line:
+\paragraph{Agent SDKs without a workflow layer.}
+The OpenAI Agents SDK~\cite{openai_agents}, which grew out of the experimental Swarm library~\cite{openai_swarm}, and Pydantic AI~\cite{pydantic_ai} provide agents, tools and handoffs, and leave composition to ordinary Python: \code{asyncio.gather} for parallel work, sequential awaits for chains. LlamaIndex~\cite{llamaindex} offers event-driven workflows and a handoff-based \code{AgentWorkflow}.
 
-\begin{verbatim}
-    flow      := step ("->" step)*
-    step      := agent_name ("," agent_name)*
-\end{verbatim}
+\paragraph{Workflow theory.}
+The two operators of \AR{} are the series and parallel compositions of series-parallel graphs~\cite{sp_graphs}, and correspond to the \emph{sequence}, \emph{parallel split} and \emph{synchronisation} patterns in the workflow-pattern catalogue of van der Aalst et al.~\cite{workflow_patterns}. The catalogue's choice and iteration patterns are the ones \AR{} leaves out. The pairing of a parallel step with a step that merges its results is the fan-out and fan-in of data-parallel systems such as MapReduce~\cite{mapreduce}, a chain is a pipeline in the sense of Kahn's process networks~\cite{kahn}, and general-purpose workflow engines such as Airflow~\cite{airflow} express the same structures as explicit task graphs.
 
-A \emph{step} is a comma-separated list of agent names; agents in the same step execute concurrently and share the same input. The \texttt{->} operator separates steps; the right-hand step begins only after every agent in the left-hand step has finished. The parser is intentionally trivial: a single \texttt{split("->")} followed by \texttt{split(",")} on each segment, which both keeps the implementation auditable and makes the semantics unambiguous.
+\paragraph{Swarms.}
+Swarms~\cite{swarms} is an open-source Python framework for multi-agent systems. Its building block is the \code{Agent} class; structures such as \code{SequentialWorkflow}, \code{ConcurrentWorkflow}, \code{GraphWorkflow}, \code{MixtureOfAgents} and \code{HierarchicalSwarm} each fix one orchestration pattern. \AR{} is the structure that lets the user write the pattern down.
 
-Three illustrative examples:
+\section{The Flow Language}
+\label{sec:language}
 
-\begin{itemize}
-    \item \texttt{"a -> b -> c"}: pure sequential pipeline (semantically equivalent to \texttt{SequentialWorkflow}).
-    \item \texttt{"a, b, c"}: pure concurrent fan-out (semantically equivalent to \texttt{ConcurrentWorkflow}), though note that flow validation requires at least one \texttt{->}.
-    \item \texttt{"a -> b, c -> d"}: diamond. \texttt{a} feeds both \texttt{b} and \texttt{c} in parallel; both then feed \texttt{d}.
-\end{itemize}
+\subsection{Grammar}
 
-The same agent name may appear in multiple steps. \texttt{"writer -> reviewer -> writer"} is a valid flow expressing a revise-then-rewrite loop, and the implementation preserves outputs from each occurrence separately so a repeated agent's runs are not silently overwritten.
+A flow is a non-empty sequence of steps separated by \code{->}. A step is a non-empty, comma-separated list of names. A name refers to a member registered with the workflow: an agent, by its \code{agent\_name}, or another workflow, by its \code{name}. Whitespace around names is ignored.
 
-\subsection{Validation Semantics}
+\begin{lstlisting}[style=plain]
+flow  ::=  step ( "->" step )*
+step  ::=  name ( "," name )*
+name  ::=  the name of a registered agent or nested workflow
+\end{lstlisting}
 
-\texttt{validate\_flow()} runs at the start of every \texttt{run()}. It checks two invariants: (1) the flow contains at least one \texttt{->} (preventing accidentally passing a single agent name and getting silent single-shot execution), and (2) every agent name referenced in the flow has been registered in the \texttt{agents} dict. Failures raise a \texttt{ValueError} with the offending name, surfacing typos immediately rather than letting them silently fall through.
-
-\subsection{Conversation as the Shared Bus}
-
-A subtle but consequential design choice: every agent in an AgentRearrange flow reads its input from a shared \texttt{Conversation} object via \texttt{conversation.get\_str()}, and writes its output back to the same object. This is true for both sequential and concurrent steps. A sequential agent sees everything that came before it; a parallel agent sees the same prefix as its peers and writes alongside them.
-
-The implication is that information propagates monotonically: each agent sees the full accumulated transcript up to the moment its step begins. This makes the system easy to reason about (there is no hidden message routing) and easy to debug (the conversation log is the complete execution trace).
+\noindent A flow with $N$ names in $L$ steps is therefore a string with $N$ names, $L-1$ arrows and $N-L$ commas. Three special cases are worth naming: a flow with no commas is a chain, a flow with no arrows is a pure fan-out, and a flow whose steps all have several names is the layered topology of Mixture-of-Agents~\cite{moa}.
 
 \subsection{Semantics}
 
-The shared-conversation discipline above admits a compact formal statement: information accumulates one layer at a time, and within a layer every agent sees the same input. This is the single property from which the correctness of every pattern below follows.
+Steps run in order. A step with one name runs that member. A step with several names runs all of them at once and completes when the last one finishes. Every member reads the conversation so far and appends its answer to it, so a member in step $k$ sees the task and every answer from steps $1$ to $k-1$. Members of the same step do not see one another's answers, and their answers are recorded in the order they are written in the flow, not the order they finish, so the transcript is deterministic. Setting \code{max\_loops} to $m$ runs the whole flow $m$ times over the growing conversation.
 
-\begin{theorem}[Monotone Layered Execution]
-Let a flow string parse into an ordered sequence of steps $S_1 \to S_2 \to \cdots \to S_n$, where each step $S_k$ is a non-empty set of agents. Let $C_k$ denote the contents of the shared conversation immediately before step $S_k$ begins, with $C_1$ the initial task. Then for every $k \in \{1, \ldots, n\}$:
-\begin{enumerate}
-    \item every agent $a \in S_k$ reads the same input $C_k$;
-    \item $C_{k+1} = C_k \,\cup\, \{\,\mathrm{out}(a) : a \in S_k\,\}$;
-    \item consequently $C_k = C_1 \,\cup\, \bigcup_{j<k}\mathrm{out}(S_j)$, so each agent observes the complete output of every earlier step.
-\end{enumerate}
-\end{theorem}
+In graph terms, consecutive steps are joined by a complete bipartite set of edges: every member of step $k+1$ depends on every member of step $k$. Table~\ref{tab:flows} lists common shapes.
 
-\begin{proof}
-By construction. The parser produces the ordered list $(S_1, \ldots, S_n)$ via \texttt{split("->")}, and \texttt{\_run} iterates it in order. Within a step, every agent is dispatched (sequentially when $|S_k|=1$, or via \texttt{run\_agents\_concurrently} when $|S_k|>1$) from the same snapshot of the conversation, and outputs are appended only after the step completes; the \texttt{Conversation} object is append-only within a run. Properties (1) and (2) are therefore immediate, and (3) follows by induction on $k$.
-\end{proof}
-
-The theorem makes the fan-in behavior of the diamond pattern (Figure~\ref{fig:diamond}) a corollary rather than a special case: the downstream agent automatically reads both parallel outputs because they were both appended to $C_k$ before it ran.
-
-\section{Architecture and Implementation}
-
-The class lives in \bpath{swarms/structs/agent\_rearrange.py} and clocks in at roughly 1,300 lines including extensive docstrings. The core execution loop is short; most of the file is supporting machinery for telemetry, serialization, and the streaming variants.
-
-\subsection{Lifecycle}
-
-\begin{enumerate}
-    \item \textbf{Construction.} \texttt{\_\_init\_\_} stores the agent list as a \texttt{dict} keyed by \texttt{agent\_name}, instantiates a \texttt{Conversation} with the configured name and time settings, optionally injects a system-level \texttt{rules} message, and runs \texttt{reliability\_check()} which verifies the agent list, flow, \texttt{max\_loops}, and \texttt{output\_type} are non-empty and well-formed.
-    \item \textbf{Optional team awareness.} If \texttt{team\_awareness=True}, the constructor injects a system message describing the full flow structure (step numbering, predecessors, successors), so agents begin execution already knowing where they sit in the pipeline.
-    \item \textbf{Execution.} \texttt{run()} delegates to the private \texttt{\_run()}, wrapping it in telemetry logging and a try/except that routes failures through \texttt{\_catch\_error()} for graceful logging and autosave.
-    \item \textbf{Step iteration.} \texttt{\_run} splits the flow on \texttt{->} into a list of steps, then walks the list. For each step it splits on \texttt{,}: a single-name step dispatches to \texttt{\_run\_sequential\_workflow}; a multi-name step dispatches to \texttt{\_run\_concurrent\_workflow}.
-    \item \textbf{Concurrent dispatch.} The concurrent helper resolves agent names to objects, calls \texttt{run\_agents\_concurrently} (the framework's parallel runner), and writes each output back to the shared conversation in deterministic order.
-    \item \textbf{Output formatting.} After all steps complete (and possibly after multiple loops, if \texttt{max\_loops > 1}), \texttt{history\_output\_formatter} converts the conversation to the configured \texttt{output\_type} (\texttt{"all"}, \texttt{"final"}, \texttt{"list"}, or \texttt{"dict"}).
-\end{enumerate}
-
-\subsection{Sequential Awareness for Repeated Agents}
-
-A nuance worth highlighting: when the same agent appears in multiple steps (e.g.\ \texttt{"writer -> reviewer -> writer"}), naive position-by-name lookup would always return the first occurrence, leaving the second invocation thinking it sits at step 0. The implementation threads an explicit \texttt{task\_idx} through \texttt{\_get\_sequential\_awareness}, so each invocation gets correctly contextualized awareness (e.g.\ "Agent ahead: reviewer" on the second \texttt{writer} call). The response dict similarly uses indexed keys (\texttt{Writer\_0}, \texttt{Writer\_2}) to preserve outputs from each occurrence.
-
-\subsection{Diagram: Internal Control Flow}
-
-Figure \ref{fig:internal} shows the internal control flow of a single \texttt{run()} call.
-
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}[node distance=9mm and 18mm]
-    \node[io] (in) {task};
-    \node[agent, below=of in] (val) {validate\_flow()};
-    \node[agent, below=of val] (split) {split on "->"};
-    \node[agent, below=of split] (loop) {for each step};
-    \node[agent, below left=12mm and 4mm of loop, fill=green!10, draw=green!50!black] (seq) {1 agent?\\\textit{sequential}};
-    \node[agent, below right=12mm and 4mm of loop, fill=orange!10, draw=orange!60!black] (par) {>1 agents?\\\textit{concurrent}};
-    \node[agent, below=30mm of loop] (conv) {update Conversation};
-    \node[io, below=of conv] (out) {formatted output};
-
-    \draw[arrow] (in) -- (val);
-    \draw[arrow] (val) -- (split);
-    \draw[arrow] (split) -- (loop);
-    \draw[arrow] (loop.south) -- ++(0,-3mm) -| (seq.north);
-    \draw[arrow] (loop.south) -- ++(0,-3mm) -| (par.north);
-    \draw[arrow] (seq) |- (conv);
-    \draw[arrow] (par) |- (conv);
-
-    % Loopback routed far to the right so it doesn't overlap the concurrent node
-    \coordinate (rightlane) at ($(par.east) + (2.6,0)$);
-    \draw[arrow, dashed, draw=gray!70]
-        (conv.east) -| (rightlane)
-        |- node[midway, right=2pt, font=\footnotesize\itshape, text=gray!50!black] {next step (or loop)}
-        (loop.east);
-
-    \draw[arrow] (conv) -- (out);
-\end{tikzpicture}
-\caption{Internal control flow of \texttt{AgentRearrange.\_run()}.}
-\label{fig:internal}
-\end{figure}
-
-\section{Architectural Patterns}
-
-The expressive power of AgentRearrange comes from the patterns it makes trivial to write. Four canonical patterns are shown in figures \ref{fig:sequential}--\ref{fig:hitl}.
-
-\subsection{Linear Pipeline}
-
-\texttt{flow = "researcher -> analyst -> writer -> editor"}
-
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}[node distance=14mm and 14mm]
-    \node[agent] (r) {researcher};
-    \node[agent, right=of r] (a) {analyst};
-    \node[agent, right=of a] (w) {writer};
-    \node[agent, right=of w] (e) {editor};
-    \draw[arrow] (r) -- (a);
-    \draw[arrow] (a) -- (w);
-    \draw[arrow] (w) -- (e);
-\end{tikzpicture}
-\caption{Linear sequential pipeline.}
-\label{fig:sequential}
-\end{figure}
-
-\subsection{Fan-out, Fan-in}
-
-\texttt{flow = "ingest -> gpt, claude, gemini -> synthesizer"}
-
-A single source feeds multiple downstream agents in parallel; their outputs converge into a synthesis step. Useful for multi-model ensembling.
-
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}[node distance=12mm and 16mm]
-    \node[agent] (i) {ingest};
-    \node[agent, right=of i, yshift=10mm] (g) {gpt};
-    \node[agent, right=of i] (c) {claude};
-    \node[agent, right=of i, yshift=-10mm] (gm) {gemini};
-    \node[agent, right=of c, xshift=10mm] (s) {synthesizer};
-
-    \draw[parallelarrow] (i) -- (g);
-    \draw[parallelarrow] (i) -- (c);
-    \draw[parallelarrow] (i) -- (gm);
-    \draw[arrow] (g) -- (s);
-    \draw[arrow] (c) -- (s);
-    \draw[arrow] (gm) -- (s);
-\end{tikzpicture}
-\caption{Fan-out / fan-in with multi-model ensembling.}
-\label{fig:fanout}
-\end{figure}
-
-\subsection{Diamond}
-
-\texttt{flow = "planner -> coder, reviewer -> tester"}
-
-The classic diamond shape: one upstream agent, two concurrent middle agents, one downstream aggregator. AgentRearrange handles the join automatically because the shared conversation accumulates both middle outputs before \texttt{tester} reads it.
-
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}[node distance=12mm and 16mm]
-    \node[agent] (p) {planner};
-    \node[agent, right=of p, yshift=8mm] (c) {coder};
-    \node[agent, right=of p, yshift=-8mm] (r) {reviewer};
-    \node[agent, right=of c, xshift=8mm, yshift=-8mm] (t) {tester};
-
-    \draw[parallelarrow] (p) -- (c);
-    \draw[parallelarrow] (p) -- (r);
-    \draw[arrow] (c) -- (t);
-    \draw[arrow] (r) -- (t);
-\end{tikzpicture}
-\caption{Diamond pattern.}
-\label{fig:diamond}
-\end{figure}
-
-\subsection{Human-in-the-Loop Hop}
-
-\texttt{flow = "drafter -> H -> finisher"} (with \texttt{human\_in\_the\_loop=True})
-
-The \texttt{H} marker designates a human step. The \texttt{custom\_human\_in\_the\_loop} callback receives the upstream output and returns the human's feedback, which is then handed to the downstream agent.
-
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}[node distance=12mm and 14mm]
-    \node[agent] (d) {drafter};
-    \node[director, right=of d, fill=yellow!20, draw=orange!70!black] (h) {Human};
-    \node[agent, right=of h] (f) {finisher};
-    \draw[arrow] (d) -- (h);
-    \draw[arrow] (h) -- (f);
-\end{tikzpicture}
-\caption{Human-in-the-loop hop.}
-\label{fig:hitl}
-\end{figure}
-
-\subsection{Compound Pattern}
-
-Real workloads combine these. Figure \ref{fig:compound} shows a research pipeline where ingestion feeds two parallel analysts, both feed a writer, the writer is reviewed in parallel by an editor and a fact-checker, and a publisher closes the workflow.
-
-\texttt{flow = "ingest -> analyst\_a, analyst\_b -> writer -> editor, fact\_checker -> publisher"}
-
-\begin{figure}[h]
-\centering
-\resizebox{\textwidth}{!}{%
-\begin{tikzpicture}[node distance=8mm and 10mm]
-    \node[agent] (i) {ingest};
-    \node[agent, right=of i, yshift=8mm] (aa) {analyst\_a};
-    \node[agent, right=of i, yshift=-8mm] (ab) {analyst\_b};
-    \node[agent, right=of aa, xshift=2mm, yshift=-8mm] (w) {writer};
-    \node[agent, right=of w, yshift=8mm] (ed) {editor};
-    \node[agent, right=of w, yshift=-8mm] (fc) {fact\_checker};
-    \node[agent, right=of ed, xshift=2mm, yshift=-8mm] (p) {publisher};
-
-    \draw[parallelarrow] (i) -- (aa);
-    \draw[parallelarrow] (i) -- (ab);
-    \draw[arrow] (aa) -- (w);
-    \draw[arrow] (ab) -- (w);
-    \draw[parallelarrow] (w) -- (ed);
-    \draw[parallelarrow] (w) -- (fc);
-    \draw[arrow] (ed) -- (p);
-    \draw[arrow] (fc) -- (p);
-\end{tikzpicture}%
-}
-\caption{Compound pattern combining fan-in, fan-out, and final aggregation.}
-\label{fig:compound}
-\end{figure}
-
-\section{Code Examples}
-
-\subsection{Minimal Sequential}
-
-\begin{lstlisting}[caption={Minimal sequential pipeline.},label={lst:seq}]
-from swarms import Agent, AgentRearrange
-
-researcher = Agent(agent_name="researcher", model_name="gpt-4.1", max_loops=1)
-writer     = Agent(agent_name="writer",     model_name="gpt-4.1", max_loops=1)
-editor     = Agent(agent_name="editor",     model_name="gpt-4.1", max_loops=1)
-
-system = AgentRearrange(
-    agents=[researcher, writer, editor],
-    flow="researcher -> writer -> editor",
-    max_loops=1,
-)
-result = system.run("Write an article on the history of transformer architectures.")
-\end{lstlisting}
-
-\subsection{Diamond Workflow}
-
-\begin{lstlisting}[caption={Diamond: one upstream, two concurrent middles, one downstream.},label={lst:diamond}]
-from swarms import Agent, AgentRearrange
-
-planner  = Agent(agent_name="planner",  model_name="gpt-4.1", max_loops=1)
-coder    = Agent(agent_name="coder",    model_name="gpt-4.1", max_loops=1)
-reviewer = Agent(agent_name="reviewer", model_name="gpt-4.1", max_loops=1)
-tester   = Agent(agent_name="tester",   model_name="gpt-4.1", max_loops=1)
-
-pipeline = AgentRearrange(
-    agents=[planner, coder, reviewer, tester],
-    flow="planner -> coder, reviewer -> tester",
-    max_loops=1,
-    team_awareness=True,  # tell each agent its neighbors
-)
-result = pipeline.run("Build a Python function that validates email addresses.")
-\end{lstlisting}
-
-\subsection{Multi-Model Ensemble Fan-Out / Fan-In}
-
-\begin{lstlisting}[caption={Three model providers in parallel, one synthesizer.},label={lst:moa}]
-from swarms import Agent, AgentRearrange
-
-ingest = Agent(agent_name="ingest", model_name="gpt-4.1", max_loops=1)
-
-gpt    = Agent(agent_name="gpt",    model_name="gpt-4.1",          max_loops=1)
-claude = Agent(agent_name="claude", model_name="claude-sonnet-4-6", max_loops=1)
-gemini = Agent(agent_name="gemini", model_name="gemini/gemini-2.5-pro", max_loops=1)
-
-synth  = Agent(
-    agent_name="synthesizer",
-    model_name="gpt-4.1",
-    system_prompt="Combine the three expert responses into one coherent answer.",
-    max_loops=1,
-)
-
-ensemble = AgentRearrange(
-    agents=[ingest, gpt, claude, gemini, synth],
-    flow="ingest -> gpt, claude, gemini -> synthesizer",
-    max_loops=1,
-)
-print(ensemble("What is the most underrated breakthrough in deep learning since 2020?"))
-\end{lstlisting}
-
-\subsection{Repeated Agent (Revise Loop)}
-
-\begin{lstlisting}[caption={The same writer is invoked twice with a review in between.},label={lst:revise}]
-from swarms import Agent, AgentRearrange
-
-writer   = Agent(agent_name="writer",   model_name="gpt-4.1", max_loops=1)
-reviewer = Agent(agent_name="reviewer", model_name="gpt-4.1", max_loops=1)
-
-revise = AgentRearrange(
-    agents=[writer, reviewer],
-    flow="writer -> reviewer -> writer",  # same agent, two invocations
-    max_loops=1,
-    team_awareness=True,
-)
-result = revise.run("Draft, critique, then revise a short essay on Hannah Arendt.")
-\end{lstlisting}
-
-\subsection{Batched and Concurrent Multi-Task Execution}
-
-\begin{lstlisting}[caption={Running the same flow over many independent tasks.},label={lst:batch}]
-from swarms import Agent, AgentRearrange
-
-a = Agent(agent_name="extract",   model_name="gpt-5.4-mini", max_loops=1)
-b = Agent(agent_name="transform", model_name="gpt-5.4-mini", max_loops=1)
-c = Agent(agent_name="load",      model_name="gpt-5.4-mini", max_loops=1)
-
-etl = AgentRearrange(
-    agents=[a, b, c],
-    flow="extract -> transform -> load",
-)
-
-tasks = [f"Process document {i}.pdf" for i in range(50)]
-
-# Batched: deep-copies isolate state per task, batch_size at a time.
-batch_results = etl.batch_run(tasks=tasks, batch_size=10)
-
-# Concurrent: ThreadPoolExecutor across all tasks at once.
-parallel_results = etl.concurrent_run(tasks=tasks, max_workers=8)
-\end{lstlisting}
-
-\subsection{Async and Streaming}
-
-\begin{lstlisting}[caption={Async execution and token-level streaming.},label={lst:stream}]
-import asyncio
-from swarms import Agent, AgentRearrange
-
-a = Agent(agent_name="a", model_name="gpt-4.1", max_loops=1)
-b = Agent(agent_name="b", model_name="gpt-4.1", max_loops=1)
-c = Agent(agent_name="c", model_name="gpt-4.1", max_loops=1)
-
-ar = AgentRearrange(agents=[a, b, c], flow="a -> b, c")
-
-async def main():
-    # Awaitable result
-    result = await ar.run_async("Explain modular arithmetic with examples.")
-    print(result)
-
-    # Token-by-token stream; for parallel steps, tokens from b and c interleave.
-    async for agent_name, token in ar.arun_stream("Explain it again, briefly."):
-        print(f"[{agent_name}] {token}", end="", flush=True)
-
-asyncio.run(main())
-\end{lstlisting}
-
-\section{Advanced Features}
-
-\subsection{Team Awareness}
-
-Setting \texttt{team\_awareness=True} injects two pieces of context. At construction time, the system message receives a description of the full flow structure: each step numbered, with its predecessors and successors listed. At execution time, before each sequential agent runs, an additional system message is appended naming the agents directly ahead and behind in the sequence. The intent is to give the agent enough situational awareness to write outputs that the next agent can consume cleanly, without having to encode "you are step 3 of 5" into every prompt by hand.
-
-\subsection{Streaming with Fair Interleaving}
-
-The streaming variants (\texttt{arun\_stream}, \texttt{run\_stream}) yield tokens as they arrive. Sequential steps stream tokens from one agent at a time; parallel steps interleave tokens from concurrent agents via an asyncio queue. A deliberate \texttt{await asyncio.sleep(0)} sits between yields in the parallel path; without it the consumer would drain one producer's burst before the scheduler hopped to the next, producing a clumpy \texttt{AAAA...BBBB} pattern instead of the fairer \texttt{ABABAB} weave users expect from a parallel stream. The \texttt{with\_events=True} flag swaps the tuple yield for structured event dicts (\texttt{agent\_start}, \texttt{token}, \texttt{agent\_end}), which is the form most useful for wiring into a server-sent-events handler.
-
-\subsection{Batched vs.\ Concurrent Multi-Task Execution}
-
-\texttt{batch\_run} processes tasks in chunks of \texttt{batch\_size}, deep-copying the entire orchestrator per task so conversation state is fully isolated. Each chunk runs on a thread pool sized by CPU count. This is the right choice when conversation history must not bleed across tasks; for example, when each task is an independent customer query.
-
-\texttt{concurrent\_run}, by contrast, fires all tasks into a single \texttt{ThreadPoolExecutor} bounded by \texttt{max\_workers}, with the same orchestrator instance reused. This is faster but assumes the workload tolerates a shared underlying state. For pure I/O-bound flows where every agent calls out to an LLM API, this is usually fine.
-
-\subsection{The \texttt{rearrange} Convenience Function}
-
-For one-shot use, the module exports a \texttt{rearrange()} function that constructs an \texttt{AgentRearrange}, runs the given task, and returns the result in a single call. It is purely a thin convenience wrapper but reduces a five-line construct to a one-liner for ad-hoc scripts and notebooks.
-
-\section{Comparison with Other Swarms Structures}
-
-AgentRearrange is the most expressive orchestrator in Swarms but not always the right choice. Table \ref{tab:compare} positions it against its siblings.
-
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
-\begin{tabular}{p{3.4cm} p{3.4cm} p{7.5cm}}
-\hline
-\textbf{Structure} & \textbf{Topology} & \textbf{When to prefer it} \\
-\hline
-\texttt{SequentialWorkflow} & Linear pipeline & Pure A→B→C; reads marginally cleaner than \texttt{AgentRearrange} for that case. \\
-\texttt{ConcurrentWorkflow} & Pure fan-out & Same task to N agents, results collected; no downstream join. \\
-\texttt{AgentRearrange} & \textbf{Arbitrary mix} & \textbf{Any time the topology is more than a straight line or a flat fan-out.} \\
-\texttt{GraphWorkflow} & Full DAG & When you need per-node callbacks, explicit node IDs, programmatic graph construction, or non-string-expressible dependencies. \\
-\texttt{HierarchicalSwarm} & Director + workers & Director must decide \emph{which} workers to invoke per task at runtime, not at flow-definition time. \\
-\hline
-\end{tabular}
-\caption{Choosing among Swarms orchestration structures.}
-\label{tab:compare}
-\end{table}
-
-The line we draw most often is between \texttt{AgentRearrange} and \texttt{GraphWorkflow}. The flow DSL covers the 80\% case: workflows where the dependency structure can be expressed as a sequence of comma-separated parallel groups. The 20\% it does not cover (arbitrary cross-step edges such as a step-3 agent feeding both a step-2 and a step-5 agent, per-node callbacks, or dependency graphs built programmatically from data) is where \texttt{GraphWorkflow} earns its weight.
-
-\section{Production Considerations}
-
-A few practical notes from running AgentRearrange in production.
-
-\textbf{Agent names must be unique.} The agent list is stored as a dict keyed by \texttt{agent\_name}; duplicates silently overwrite earlier entries. The flow string references agents by name, so a duplicate effectively merges two configurations. Unique, descriptive names are the cheapest reliability investment.
-
-\textbf{Set explicit \texttt{max\_loops}.} The orchestrator's \texttt{max\_loops} re-runs the entire flow that many times, with the conversation continuing to accumulate across loops. This is rarely what users want for a single-shot workflow; leave it at the default 1 unless you have a specific iterative refinement pattern in mind.
-
-\textbf{Watch context length on long flows.} Because every agent reads the full conversation, the input to the last agent in a long flow can be very large. For flows of more than 5--6 steps, enable \texttt{context\_compression=True} on the participating agents so they auto-summarize when nearing the limit.
-
-\textbf{Validate flows in CI.} Because flows are strings, typos slip through. A trivial unit test that instantiates each orchestrator with its production flow and an empty task will surface every "Agent 'X' is not registered" error at test time rather than at 3 a.m.
-
-\textbf{Use \texttt{rules}, not prompt-engineering each agent.} The \texttt{rules} parameter prepends a system message visible to every agent in the flow. For invariants that apply to the entire workflow ("output JSON only", "never reveal internal tokens"), this is far cleaner than appending the same paragraph to each agent's system prompt.
-
-\section{Conclusion and Future Work}
-
-AgentRearrange shows that the right abstraction can collapse what would otherwise be a family of orchestrator classes into a single primitive parameterized by a string. The flow DSL is small enough to memorize, expressive enough to capture the workflows that real systems need, and ergonomic enough that engineers iterate on orchestration topology with the same low friction they apply to prompts. The implementation deliberately delegates parallel execution to existing Swarms machinery (\texttt{run\_agents\_concurrently}), keeps the shared \texttt{Conversation} as the single source of truth, and exposes sync, async, streaming, batched, and concurrent surfaces without changing the underlying flow.
-
-Several directions remain open. First, the current DSL is linear in steps; expressing fully general DAGs with cross-step edges still requires \texttt{GraphWorkflow}. A natural extension is named ports (e.g.\ \texttt{"a -> b -> c, a:tail -> c"}) that let a downstream step pull from any earlier step by name rather than only the immediately preceding one. Second, conditional flows ("if the reviewer flags an issue, loop back to writer; otherwise advance to publisher") currently require leaving the DSL behind for Python control flow; a minimal conditional operator would absorb this back into the string. Third, the team-awareness payload could be cached and templated rather than reconstructed per step, removing a small but real source of token overhead on long flows.
-
-The framework is open-source under the Apache-2.0 license. The source for AgentRearrange lives at \href{https://github.com/kyegomez/swarms/blob/master/swarms/structs/agent_rearrange.py}{\bpath{swarms/structs/agent\_rearrange.py}} in the main \href{https://github.com/kyegomez/swarms}{Swarms repository}. Issues, feature requests, and pull requests are welcome.
-
-\section*{Code and Resources}
-
-\begin{center}
-\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{@{}l@{\hspace{2em}}p{0.62\textwidth}@{}}
+\begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{Resource} & \textbf{Location} \\
+Shape & Flow & Parsed steps \\
 \midrule
-Source repository      & \href{https://github.com/kyegomez/swarms}{github.com/kyegomez/swarms} \\
-AgentRearrange source  & \href{https://github.com/kyegomez/swarms/blob/master/swarms/structs/agent_rearrange.py}{\bpath{swarms/structs/agent\_rearrange.py}} \\
-Documentation          & \href{https://docs.swarms.world}{docs.swarms.world} \\
-PyPI package           & \href{https://pypi.org/project/swarms/}{pypi.org/project/swarms} \\
-Marketplace            & \href{https://swarms.world}{swarms.world} \\
-Community (Discord)    & \href{https://discord.gg/EamjgSaEQf}{discord.gg/EamjgSaEQf} \\
-Twitter / X            & \href{https://twitter.com/swarms_corp/}{@swarms\_corp} \\
-License                & Apache-2.0 \\
-Version                & Swarms 12.0.0 \\
-Contact                & \href{mailto:kye@swarms.world}{kye@swarms.world} \\
+Chain & \code{a -> b -> c} & \code{[[a], [b], [c]]} \\
+Fan-out & \code{a, b, c} & \code{[[a, b, c]]} \\
+Fan-out, fan-in & \code{a -> b, c -> d} & \code{[[a], [b, c], [d]]} \\
+Layered & \code{a, b -> c, d -> e} & \code{[[a, b], [c, d], [e]]} \\
+Revisit & \code{writer -> critic -> writer} & \code{[[writer], [critic], [writer]]} \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{Flows and the steps they parse to. A name may appear more than once; each occurrence is a separate invocation of the same agent.}
+\label{tab:flows}
+\end{table}
 
-\begin{thebibliography}{99}
+\subsection{Validation and inspection}
 
-\bibitem{autogen}
-Wu, Q., Bansal, G., Zhang, J., Wu, Y., Zhang, S., Zhu, E., Li, B., Jiang, L., Zhang, X., \& Wang, C.
-\newblock {AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation}.
-\newblock \textit{arXiv preprint arXiv:2308.08155}, 2023.
+A flow is checked when the workflow is constructed, when the flow is replaced and before each run. The check rejects an empty flow, an empty step such as the one in \code{"a -> -> b"}, and any name that is not registered, with a \code{ValueError} that names the offending step or agent. No model call is made before the flow is known to be well formed.
 
-\bibitem{metagpt}
-Hong, S., Zheng, X., Chen, J., Cheng, Y., Wang, J., Zhang, C., Wang, Z., Yau, S.K.S., Lin, Z., Zhou, L., Ran, C., Xiao, L., Wu, C., \& Schmidhuber, J.
-\newblock {MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework}.
-\newblock In \textit{International Conference on Learning Representations (ICLR)}, 2024.
+The \code{explain} method prints the resolved plan without running anything, which makes a flow testable in continuous integration:
 
-\bibitem{genagents}
-Park, J.~S., O'Brien, J.~C., Cai, C.~J., Morris, M.~R., Liang, P., \& Bernstein, M.~S.
-\newblock {Generative Agents: Interactive Simulacra of Human Behavior}.
-\newblock In \textit{Proceedings of the 36th Annual ACM Symposium on User Interface Software and Technology (UIST)}, 2023.
+\begin{lstlisting}[style=plain]
+>>> workflow.explain()
+Flow: Planner -> Tech, Market, Legal -> Writer
 
-\bibitem{react}
-Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., \& Cao, Y.
-\newblock {ReAct: Synergizing Reasoning and Acting in Language Models}.
-\newblock In \textit{International Conference on Learning Representations (ICLR)}, 2023.
+Step 1: Planner              [sequential]
+Step 2: Tech, Market, Legal  [parallel, 3 agents]
+Step 3: Writer               [sequential]
 
-\bibitem{reflexion}
-Shinn, N., Cassano, F., Gopinath, A., Narasimhan, K., \& Yao, S.
-\newblock {Reflexion: Language Agents with Verbal Reinforcement Learning}.
-\newblock In \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+3 steps, 5 agent invocations across 1 loop(s).
+\end{lstlisting}
 
-\bibitem{toolformer}
-Schick, T., Dwivedi-Yu, J., Dess\`i, R., Raileanu, R., Lomeli, M., Zettlemoyer, L., Cancedda, N., \& Scialom, T.
-\newblock {Toolformer: Language Models Can Teach Themselves to Use Tools}.
-\newblock In \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+\subsection{Nesting and expressiveness}
 
-\bibitem{moa}
-Wang, J., Wang, J., Athiwaratkun, B., Zhang, C., \& Zou, J.
-\newblock {Mixture-of-Agents Enhances Large Language Model Capabilities}.
-\newblock \textit{arXiv preprint arXiv:2406.04692}, 2024.
+Any object with a \code{name} and a \code{run} method can be registered as a member, including another \AR{}. A nested workflow is a single name in the outer flow and runs as one step. This closes the language under composition: a parallel branch can be a chain, a step of a chain can be a fan-out, to any depth.
 
-\bibitem{tot}
-Yao, S., Yu, D., Zhao, J., Shafran, I., Griffiths, T.~L., Cao, Y., \& Narasimhan, K.
-\newblock {Tree of Thoughts: Deliberate Problem Solving with Large Language Models}.
-\newblock In \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+\begin{lstlisting}
+experts = AgentRearrange(
+    name="Experts",
+    agents=[tech, market, legal],
+    flow="Tech -> Market, Legal",
+)
+workflow = AgentRearrange(
+    agents=[planner, experts, writer],
+    flow="Planner -> Experts -> Writer",
+)
+\end{lstlisting}
 
-\bibitem{chainofthought}
-Wei, J., Wang, X., Schuurmans, D., Bosma, M., Ichter, B., Xia, F., Chi, E., Le, Q., \& Zhou, D.
-\newblock {Chain-of-Thought Prompting Elicits Reasoning in Large Language Models}.
-\newblock In \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2022.
+The class of orders expressible this way is the class of series-parallel orders~\cite{sp_graphs}: those built from single agents by repeatedly placing two workflows in sequence or side by side. The smallest dependency structure outside the class is the ``N'' shape, in which $c$ depends on $a$ and $b$ while $d$ depends on $b$ alone. \AR{} cannot express it exactly; it can only over-approximate it by letting $d$ also wait for $a$. Section~\ref{sec:limits} returns to this.
 
-\bibitem{autogpt}
-Significant Gravitas.
-\newblock {AutoGPT: An Autonomous GPT-4 Experiment}.
-\newblock GitHub repository, 2023.
-\newblock \url{https://github.com/Significant-Gravitas/AutoGPT}.
+\section{Execution Model}
+\label{sec:execution}
+
+\paragraph{One shared conversation.}
+An \AR{} holds a single conversation. A run resets it, records the task, and then executes the steps. Before a member runs, the conversation is rendered for that member as chat messages in which the member's own earlier answers carry the \code{assistant} role and everything else is attributed input; the newest turn becomes the member's task. After the member returns, only its answer, not its private scratch work, is appended. The developer never writes the code that moves outputs from one agent to the next, which is the code that pipeline languages leave to the user.
+
+\paragraph{Position awareness.}
+A member of a sequential step is told which members come immediately before and after it in the flow, as a system message that is not written to the shared conversation. With \code{team\_awareness=True} the full step structure is added to the conversation once, at the start of the run.
+
+\paragraph{Parallel steps.}
+The members of a parallel step run on a thread pool sized to the step. Each receives its own rendering of the conversation as it stood when the step began. Results are written back in flow order once all have finished. An exception in any member propagates to the caller.
+
+\paragraph{Outputs.}
+The \code{output\_type} parameter selects what \code{run} returns from the conversation: the full transcript as a string or list, a dictionary, or only the final answer.
+
+\paragraph{Rearranging.}
+\code{set\_custom\_flow} replaces the flow. The new string is validated first, and on failure the old flow is kept and the error is raised at the call site:
+
+\begin{lstlisting}
+workflow.set_custom_flow("Planner -> Tech -> Market -> Legal -> Writer")
+
+workflow.set_custom_flow("Planner -> Tehc -> Writer")
+# ValueError: Agent 'Tehc' is not registered.
+# workflow.flow is unchanged
+\end{lstlisting}
+
+\noindent Agents are not rebuilt and nothing is compiled; the parsed steps are cached against the flow string and refreshed when it changes. Members can also be added and removed with \code{add\_agent} and \code{remove\_agent}.
+
+\paragraph{Entry points.}
+Besides \code{run}, the class offers \code{batch\_run} and \code{concurrent\_run} for many tasks, each on an independent copy of the workflow so transcripts never mix, \code{run\_async} for use inside an event loop, and \code{run\_stream} and \code{arun\_stream} for token streaming, where tokens from the members of a parallel step are interleaved and labelled by agent. The same flow string is accepted by \code{SwarmRouter} with \code{swarm\_type="AgentRearrange"}.
+
+\section{Code Comparison}
+\label{sec:code}
+
+We write one workflow in three frameworks: a planner, three specialists that work in parallel, and a writer that reads all three. Agent construction is similar everywhere and is shown only for \AR{}; the comparison is about the code that states the topology.
+
+\listinghead{AgentRearrange}
+\begin{lstlisting}
+from swarms import Agent, AgentRearrange
+
+planner = Agent(agent_name="Planner", model_name="gpt-5.4", max_loops=1)
+tech    = Agent(agent_name="Tech",    model_name="gpt-5.4", max_loops=1)
+market  = Agent(agent_name="Market",  model_name="gpt-5.4", max_loops=1)
+legal   = Agent(agent_name="Legal",   model_name="gpt-5.4", max_loops=1)
+writer  = Agent(agent_name="Writer",  model_name="gpt-5.4", max_loops=1)
+
+workflow = AgentRearrange(
+    agents=[planner, tech, market, legal, writer],
+    flow="Planner -> Tech, Market, Legal -> Writer",
+)
+report = workflow.run("Assess launching a payments product in the EU.")
+\end{lstlisting}
+
+\listinghead{LangGraph}
+\begin{lstlisting}
+from langgraph.graph import END, START, MessagesState, StateGraph
+
+graph = StateGraph(MessagesState)
+graph.add_node("Planner", planner)
+graph.add_node("Tech", tech)
+graph.add_node("Market", market)
+graph.add_node("Legal", legal)
+graph.add_node("Writer", writer)
+graph.add_edge(START, "Planner")
+graph.add_edge("Planner", "Tech")
+graph.add_edge("Planner", "Market")
+graph.add_edge("Planner", "Legal")
+graph.add_edge(["Tech", "Market", "Legal"], "Writer")
+graph.add_edge("Writer", END)
+app = graph.compile()
+report = app.invoke(
+    {"messages": [("user", "Assess launching a payments product in the EU.")]}
+)
+\end{lstlisting}
+
+\listinghead{AutoGen GraphFlow}
+\begin{lstlisting}
+from autogen_agentchat.teams import DiGraphBuilder, GraphFlow
+
+builder = DiGraphBuilder()
+for agent in (planner, tech, market, legal, writer):
+    builder.add_node(agent)
+for expert in (tech, market, legal):
+    builder.add_edge(planner, expert)
+    builder.add_edge(expert, writer)
+team = GraphFlow(
+    participants=builder.get_participants(), graph=builder.build()
+)
+report = await team.run(task="Assess launching a payments product in the EU.")
+\end{lstlisting}
+
+Table~\ref{tab:spec} generalises the count. For a flow of $N$ agents in $L$ steps of widths $w_1,\dots,w_L$, \AR{} needs one string whatever the size. LangGraph needs about two calls per agent. AutoGen needs one edge per pair of agents in consecutive steps, which is quadratic in the step width. The nested-object styles of Agno and LangChain and the task list of CrewAI sit in between.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}lXr@{}}
+\toprule
+Framework & Topology specification for $N$ agents in $L$ steps & 5-agent example \\
+\midrule
+\AR{} & one string with $N$ names & 1 \\
+LangGraph \code{StateGraph} & constructor, $N$ \code{add\_node}, about $N$ \code{add\_edge}, \code{compile} & 13 \\
+AutoGen \code{GraphFlow} & builder, $N$ \code{add\_node}, $\sum_i w_i w_{i+1}$ \code{add\_edge}, \code{build}, team & 14 \\
+Agno \code{Workflow} & $N$ \code{Step}, one \code{Parallel} per wide step, one \code{Workflow} & 7 \\
+LangChain LCEL & $L$ parallel maps, $L$ merge steps, one sequence, plus a user-written merge function & 7 \\
+CrewAI \code{Crew} & $N$ \code{Task} objects with context lists, one \code{Crew} & 6 \\
+\bottomrule
+\end{tabularx}
+\caption{Calls or constructed objects needed to state a topology, excluding agent construction. The last column counts them for the five-agent workflow above: from the listings for LangGraph and AutoGen, and from the adapters in our benchmark suite for Agno, LangChain and CrewAI.}
+\label{tab:spec}
+\end{table}
+
+The count understates one difference. In the graph APIs the topology is spread across statements that must agree with one another: a node name used in an edge must match a node added earlier, and moving an agent means finding and editing every edge that touches it. In \AR{} the topology is one value. It can be stored in a configuration file, produced by a model, compared with \code{==}, and shown to a reviewer in a diff of one line.
+
+\section{Evaluation}
+\label{sec:eval}
+
+\subsection{Benchmark suite}
+
+The Swarms repository already has a framework benchmark, \code{tests/benchmark.py}, which measures a flat fan-out. The suite introduced here extends it to workflows with structure.
+
+\paragraph{Workflow shapes.}
+Each shape is generated for $N$ agents, with $N \in \{8, 32, 128, 512\}$.
+\begin{itemize}
+  \item \textbf{Chain}: $N$ steps of one agent. Depth $N$.
+  \item \textbf{Fan-out}: one step of $N$ agents. Depth 1.
+  \item \textbf{Diamond}: one agent, then $N-2$ agents in parallel, then one agent. Depth 3.
+  \item \textbf{Layered}: steps of eight agents, each step reading the one before. Depth $N/8$.
+\end{itemize}
+
+\paragraph{Frameworks.}
+Every shape is built through the workflow API of each framework: \AR{} (Swarms 17, commit \code{aabfa8c}), \code{StateGraph} in LangGraph 0.5.4, the expression language of LangChain Core 0.3.63, AutoGen AgentChat 0.7.5 \code{GraphFlow}, Agno 3.2.0 \code{Workflow} and CrewAI 1.15.40 \code{Crew}. LangGraph appears twice, because its nodes can be plain functions or agents and the two cost very different amounts: \emph{LangGraph (functions)} uses a function per node that calls the model and appends to a list, the lightest graph LangGraph can run, and \emph{LangGraph (agents)} uses a prebuilt agent per node over a shared message state, which is the closer match to what \AR{} runs. A sequential CrewAI crew cannot end in more than one asynchronous task, so it cannot express the fan-out or layered shapes; those cells are empty.
+
+\paragraph{Stubbed model.}
+Every agent in every framework calls the same stub, which waits 10\,ms and returns a fixed string, through the framework's own model interface, synchronous or asynchronous as the framework prefers. No network is involved, so the differences measured are the frameworks' own work.
+
+\paragraph{Metrics.}
+Each cell (framework, shape, size) runs in a fresh interpreter after a small warm-up workflow.
+\begin{itemize}
+  \item \textbf{Orchestration overhead}: wall-clock time of a run minus the model time of that run. The stub records the start and duration of every call; the model time of a step is the duration of its fastest call, and the model time of a run is the sum over its steps. What is left is time the framework spent doing something other than waiting for a model. We report the median of three runs.
+  \item \textbf{Peak memory}: the \code{tracemalloc} peak while building the agents and the workflow and running it once.
+  \item \textbf{Construction time}: building the agents and the workflow.
+  \item \textbf{Re-specification time}: changing the topology of an existing set of agents to a different shape and back, the median of four changes. For \AR{} this is \code{set\_custom\_flow}; for the others it is rebuilding the workflow object around the same agents, and for LangGraph recompiling it.
+  \item \textbf{Peak threads} and the \textbf{number of model calls}, the latter as a check that every framework ran exactly $N$ calls, which all did.
+\end{itemize}
+
+\noindent All measurements were taken on one machine: Apple M3 Pro, 12 cores, 18\,GB, macOS 15.7, Python 3.12.3.
+
+\subsection{Orchestration overhead}
+
+Figure~\ref{fig:overhead} and Table~\ref{tab:overhead} give the overhead for every cell. Three results stand out.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[bench, group style={group size=2 by 2, horizontal sep=1.5cm, vertical sep=1.2cm}]
+\nextgroupplot[title={Chain}, ylabel={Overhead (ms)}]
+\addplot[sw] coordinates {(8,2.06) (32,10.68) (128,76.91) (512,887)};
+\addplot[lg] coordinates {(8,1.387) (32,15.67) (128,31.87) (512,186.1)};
+\addplot[lga] coordinates {(8,9.283) (32,50.91) (128,285.3) (512,2246)};
+\addplot[lc] coordinates {(8,5.081) (32,63.45) (128,108.7) (512,901.4)};
+\addplot[ag] coordinates {(8,10.88) (32,134.8) (128,549.9) (512,6432)};
+\addplot[an] coordinates {(8,2.679) (32,22.91) (128,75.95) (512,558.1)};
+\addplot[cr] coordinates {(8,52.29) (32,237.1) (128,822.2) (512,4240)};
+\nextgroupplot[title={Fan-out}]
+\addplot[sw] coordinates {(8,0.7167) (32,2.621) (128,10.66) (512,37.13)};
+\addplot[lg] coordinates {(8,1.195) (32,4.405) (128,20.36) (512,92.27)};
+\addplot[lga] coordinates {(8,3.883) (32,14.53) (128,66.85) (512,355.3)};
+\addplot[lc] coordinates {(8,1.951) (32,7.825) (128,29.76) (512,117.4)};
+\addplot[ag] coordinates {(8,4.522) (32,32.21) (128,404.3) (512,5970)};
+\addplot[an] coordinates {(8,0.8489) (32,2.334) (128,8.378) (512,39.74)};
+\nextgroupplot[title={Diamond}, ylabel={Overhead (ms)}, xlabel={Agents}, legend to name=legendoverheadms, legend columns=4, legend style={font=\scriptsize, draw=none, /tikz/every even column/.append style={column sep=6pt}}]
+\addplot[sw] coordinates {(8,1.789) (32,4.623) (128,11.69) (512,42.13)};
+\addlegendentry{AgentRearrange}
+\addplot[lg] coordinates {(8,2.088) (32,4.507) (128,13.26) (512,104.6)};
+\addlegendentry{LangGraph (functions)}
+\addplot[lga] coordinates {(8,6.206) (32,15.6) (128,69.01) (512,371.6)};
+\addlegendentry{LangGraph (agents)}
+\addplot[lc] coordinates {(8,3.259) (32,11.35) (128,30.62) (512,120.6)};
+\addlegendentry{LangChain LCEL}
+\addplot[ag] coordinates {(8,7.153) (32,35.81) (128,403.5) (512,6174)};
+\addlegendentry{AutoGen GraphFlow}
+\addplot[an] coordinates {(8,1.166) (32,3.461) (128,9.671) (512,34.7)};
+\addlegendentry{Agno Workflow}
+\addplot[cr] coordinates {(8,42.92) (32,146.2) (128,718.7) (512,3380)};
+\addlegendentry{CrewAI Crew}
+\nextgroupplot[title={Layered}, xlabel={Agents}]
+\addplot[sw] coordinates {(8,3.322) (32,8.763) (128,78.95) (512,991.1)};
+\addplot[lg] coordinates {(8,1.169) (32,6.074) (128,34.45) (512,192.2)};
+\addplot[lga] coordinates {(8,5.176) (32,22.96) (128,149.7) (512,1556)};
+\addplot[lc] coordinates {(8,2.258) (32,9.379) (128,110) (512,231.3)};
+\addplot[ag] coordinates {(8,8.044) (32,33.7) (128,559.1) (512,6486)};
+\addplot[an] coordinates {(8,1.287) (32,3.561) (128,13.69) (512,99.63)};
+\end{groupplot}
+\end{tikzpicture}
+
+\vspace{2pt}\pgfplotslegendfromname{legendoverheadms}
+\caption{Orchestration overhead against workflow size, on log-log axes. Lower is better. CrewAI is absent from the fan-out and layered panels because a sequential crew cannot express them.}
+\label{fig:overhead}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}l rrrr rrrr rrrr rrrr@{}}
+\toprule
+ & \multicolumn{4}{c}{Chain} & \multicolumn{4}{c}{Fan-out} & \multicolumn{4}{c}{Diamond} & \multicolumn{4}{c}{Layered} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}\cmidrule(lr){10-13}\cmidrule(l){14-17}
+Agents & 8 & 32 & 128 & 512 & 8 & 32 & 128 & 512 & 8 & 32 & 128 & 512 & 8 & 32 & 128 & 512 \\
+\midrule
+\AR{} & 2.1 & \textbf{10.7} & 76.9 & 887 & \textbf{0.7} & 2.6 & 10.7 & \textbf{37.1} & 1.8 & 4.6 & 11.7 & 42.1 & 3.3 & 8.8 & 78.9 & 991 \\
+LangGraph (functions) & \textbf{1.4} & 15.7 & \textbf{31.9} & \textbf{186} & 1.2 & 4.4 & 20.4 & 92.3 & 2.1 & 4.5 & 13.3 & 105 & \textbf{1.2} & 6.1 & 34.5 & 192 \\
+LangGraph (agents) & 9.3 & 50.9 & 285 & 2,246 & 3.9 & 14.5 & 66.9 & 355 & 6.2 & 15.6 & 69.0 & 372 & 5.2 & 23.0 & 150 & 1,556 \\
+LangChain LCEL & 5.1 & 63.5 & 109 & 901 & 2.0 & 7.8 & 29.8 & 117 & 3.3 & 11.4 & 30.6 & 121 & 2.3 & 9.4 & 110 & 231 \\
+AutoGen GraphFlow & 10.9 & 135 & 550 & 6,432 & 4.5 & 32.2 & 404 & 5,970 & 7.2 & 35.8 & 404 & 6,174 & 8.0 & 33.7 & 559 & 6,486 \\
+Agno Workflow & 2.7 & 22.9 & 75.9 & 558 & 0.8 & \textbf{2.3} & \textbf{8.4} & 39.7 & \textbf{1.2} & \textbf{3.5} & \textbf{9.7} & \textbf{34.7} & 1.3 & \textbf{3.6} & \textbf{13.7} & \textbf{99.6} \\
+CrewAI Crew & 52.3 & 237 & 822 & 4,240 & -- & -- & -- & -- & 42.9 & 146 & 719 & 3,380 & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}}
+\caption{Orchestration overhead in milliseconds, median of three runs. Bold marks the lowest value in each column.}
+\label{tab:overhead}
+\end{table}
+
+\paragraph{Wide workflows scale well.}
+In the fan-out and diamond shapes \AR{} adds 37\,ms and 42\,ms at 512 agents, under a tenth of a millisecond per agent. That is 2.5 times less than LangGraph with function nodes (92\,ms and 105\,ms), about 9 times less than LangGraph with agent nodes (355\,ms and 372\,ms), 3 times less than LangChain, and more than two orders of magnitude less than AutoGen \code{GraphFlow}, whose overhead grows faster than linearly and reaches six seconds. Only Agno is in the same range, slightly lower on the diamond and slightly higher on the fan-out. At every size, \AR{} is within 8\,ms of the lowest overhead on both shapes.
+
+\paragraph{Against graph frameworks whose nodes are agents, \AR{} is lower everywhere.}
+\AR{} has less overhead than LangGraph with agent nodes, AutoGen \code{GraphFlow} and CrewAI in every one of the cells those frameworks can run, across all four shapes and all four sizes. The margin over LangGraph with agent nodes ranges from 1.6 times (layered, 512 agents) to 9.6 times (fan-out, 512 agents).
+
+\paragraph{Deep workflows expose the cost of the shared conversation.}
+The chain and layered shapes tell a different story at scale. Up to 32 agents \AR{} is the lowest or within 6\,ms of the lowest in every shape. At 128 agents and beyond its overhead in deep workflows grows faster than linearly: 887\,ms for a 512-agent chain and 991\,ms for 512 agents in 64 layers, against 186\,ms and 192\,ms for LangGraph with function nodes and 558\,ms and 100\,ms for Agno. The cause is the execution model of Section~\ref{sec:execution}. Before each agent runs, the whole conversation so far is rendered into messages for it, so step $k$ does work proportional to $k$ and a run does work proportional to the square of its depth. A LangGraph function node that appends one item to a list does constant work per step. The same effect appears in the frameworks that also pass history between agents: LangGraph with agent nodes and AutoGen are both slower than \AR{} on the 512-agent chain, at 2.2 and 6.4 seconds.
+
+We consider this an honest trade and not a defect to be hidden. With a real model the same design makes the input of step $k$ grow with $k$, and the token bill, not the 1.7\,ms of orchestration per agent, is what a user of a 512-step chain would notice. Chains of that length are not what the language is for.
+
+\subsection{Memory, construction and threads}
+
+Table~\ref{tab:resources} reports the remaining metrics at 512 agents.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}l rrrr@{}}
+\toprule
+ & Chain & Fan-out & Diamond & Layered \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Peak traced memory (MB)}} \\
+\AR{} & 52.5 & \textbf{5.8} & \textbf{5.9} & 52.0 \\
+LangGraph (functions) & \textbf{2.4} & 6.5 & 6.9 & 6.1 \\
+LangGraph (agents) & 8.4 & 12.5 & 13.1 & 13.0 \\
+LangChain LCEL & 5.7 & 7.4 & 7.3 & \textbf{5.4} \\
+AutoGen GraphFlow & 68.7 & 8.8 & 10.1 & 69.8 \\
+Agno Workflow & 5.5 & 9.4 & 9.4 & 5.6 \\
+CrewAI Crew & 49.7 & -- & 56.3 & -- \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Construction time, agents and workflow (ms)}} \\
+\AR{} & 8 & 8 & 8 & 9 \\
+LangGraph (functions) & 49 & 44 & 31 & 42 \\
+LangGraph (agents) & 246 & 167 & 171 & 169 \\
+LangChain LCEL & 20 & 23 & 27 & 12 \\
+AutoGen GraphFlow & \textbf{6} & \textbf{5} & 17 & 15 \\
+Agno Workflow & 6 & 6 & \textbf{5} & \textbf{7} \\
+CrewAI Crew & 29 & -- & 34 & -- \\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Peak threads}} \\
+\AR{} & 2 & 324 & 301 & 10 \\
+LangGraph (functions) & 1 & 284 & 283 & 9 \\
+LangGraph (agents) & 1 & 218 & 219 & 62 \\
+LangChain LCEL & 2 & 212 & 177 & 9 \\
+AutoGen GraphFlow & 1 & 1 & 1 & 1 \\
+Agno Workflow & 1 & 1 & 1 & 1 \\
+CrewAI Crew & 4 & -- & 726 & -- \\
+\bottomrule
+\end{tabular}
+\caption{Resource use at 512 agents. Bold marks the lowest value in each column of the memory and construction blocks.}
+\label{tab:resources}
+\end{table}
+
+\paragraph{Memory follows the same split.}
+For the wide shapes \AR{} has the lowest peak memory of any framework measured, 5.8\,MB for the fan-out and 5.9\,MB for the diamond. For the deep shapes it peaks at about 52\,MB, because the conversation is rendered once per step; only AutoGen, at about 69\,MB, uses more, and LangGraph with function nodes uses 2.4\,MB.
+
+\paragraph{Construction is cheap and linear.}
+Building 512 agents and their workflow takes about 8\,ms with \AR{}, which is 16 microseconds per agent. AutoGen and Agno are in the same range. LangGraph takes 31 to 49\,ms with function nodes and 167 to 246\,ms with agent nodes, since each prebuilt agent is itself a compiled graph.
+
+\paragraph{Parallel steps cost threads.}
+\AR{} runs a parallel step on one thread per agent, as do LangGraph and LangChain when their nodes call a synchronous model; AutoGen and Agno run on one thread because they are asynchronous throughout. The thread counts in Table~\ref{tab:resources} are sampled when a model call begins, so they are lower bounds. Threads are the reason \AR{} is not further ahead on wide shapes, and removing them is the first item of future work.
+
+\subsection{Re-specification}
+
+The name \AR{} makes a claim: that changing the arrangement of agents is cheap. Figure~\ref{fig:rearrange} measures it.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[bench, group style={group size=2 by 2, horizontal sep=1.5cm, vertical sep=1.2cm}]
+\nextgroupplot[title={Chain}, ylabel={Re-specification (ms)}]
+\addplot[sw] coordinates {(8,0.03756) (32,0.05708) (128,0.1475) (512,4.613)};
+\addplot[lg] coordinates {(8,0.9857) (32,2.144) (128,12.04) (512,40.21)};
+\addplot[lga] coordinates {(8,0.1978) (32,0.858) (128,1.526) (512,4.522)};
+\addplot[lc] coordinates {(8,0.05977) (32,0.226) (128,0.4666) (512,2.115)};
+\addplot[ag] coordinates {(8,0.04994) (32,0.4145) (128,0.4364) (512,1.582)};
+\addplot[an] coordinates {(8,0.07923) (32,0.2856) (128,0.5078) (512,5.022)};
+\nextgroupplot[title={Fan-out}]
+\addplot[sw] coordinates {(8,0.006875) (32,0.02433) (128,0.1313) (512,1.929)};
+\addplot[lg] coordinates {(8,0.7361) (32,2.028) (128,8.209) (512,31.21)};
+\addplot[lga] coordinates {(8,0.09592) (32,0.2543) (128,0.8647) (512,3.764)};
+\addplot[lc] coordinates {(8,0.02633) (32,0.06965) (128,0.2525) (512,1.07)};
+\addplot[ag] coordinates {(8,0.04002) (32,0.1053) (128,0.395) (512,1.64)};
+\addplot[an] coordinates {(8,0.04973) (32,0.1303) (128,0.4743) (512,3.918)};
+\nextgroupplot[title={Diamond}, ylabel={Re-specification (ms)}, xlabel={Agents}, legend to name=legendrearrangems, legend columns=4, legend style={font=\scriptsize, draw=none, /tikz/every even column/.append style={column sep=6pt}}]
+\addplot[sw] coordinates {(8,0.01017) (32,0.02717) (128,0.1432) (512,1.988)};
+\addlegendentry{AgentRearrange}
+\addplot[lg] coordinates {(8,0.7474) (32,3.195) (128,8.319) (512,30.27)};
+\addlegendentry{LangGraph (functions)}
+\addplot[lga] coordinates {(8,0.1864) (32,0.3485) (128,1.157) (512,4.203)};
+\addlegendentry{LangGraph (agents)}
+\addplot[lc] coordinates {(8,0.04437) (32,0.07463) (128,0.2774) (512,1.055)};
+\addlegendentry{LangChain LCEL}
+\addplot[ag] coordinates {(8,0.08671) (32,0.1763) (128,0.5561) (512,2.294)};
+\addlegendentry{AutoGen GraphFlow}
+\addplot[an] coordinates {(8,0.0545) (32,0.1536) (128,0.5219) (512,2.077)};
+\addlegendentry{Agno Workflow}
+\addplot[cr] coordinates {(8,0.7978) (32,1.423) (128,4.171) (512,15.04)};
+\addlegendentry{CrewAI Crew}
+\nextgroupplot[title={Layered}, xlabel={Agents}]
+\addplot[sw] coordinates {(8,0.006396) (32,0.04004) (128,0.1833) (512,1.849)};
+\addplot[lg] coordinates {(8,0.652) (32,4.041) (128,19.18) (512,56.02)};
+\addplot[lga] coordinates {(8,0.1382) (32,0.5076) (128,1.633) (512,6.439)};
+\addplot[lc] coordinates {(8,0.02265) (32,0.07331) (128,0.5531) (512,1.223)};
+\addplot[ag] coordinates {(8,0.04477) (32,0.2518) (128,1.062) (512,4.029)};
+\addplot[an] coordinates {(8,0.04556) (32,0.1994) (128,0.5033) (512,3.424)};
+\end{groupplot}
+\end{tikzpicture}
+
+\vspace{2pt}\pgfplotslegendfromname{legendrearrangems}
+\caption{Time to change an existing set of agents from one topology to another, on log-log axes. Lower is better. Each panel is labelled by the shape the workflow starts in; the change is to a chain (or, for the chain, to a fan-out) and back. CrewAI appears only where it can express both shapes.}
+\label{fig:rearrange}
+\end{figure}
+
+Up to 128 agents \AR{} is the fastest framework in every shape: replacing the flow of a 128-agent workflow takes between 0.13 and 0.18\,ms, against 8 to 19\,ms to rebuild and recompile a LangGraph graph with function nodes, a factor of 58 to 105. At 512 agents \AR{} takes 1.8 to 4.6\,ms and LangGraph 30 to 56\,ms, a factor of 9 to 30, but LangChain and AutoGen, whose builders do no validation, are faster than \AR{} at that size by up to a factor of three. The reason is visible in the curve: \AR{} validates every name in the new flow by scanning the list of members, which is quadratic in the number of agents and only shows at this scale. Table~\ref{tab:rearrange} gives the values at 512 agents.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}l rrrr@{}}
+\toprule
+ & Chain & Fan-out & Diamond & Layered \\
+\midrule
+\AR{} & 4.61 & 1.93 & 1.99 & 1.85 \\
+LangGraph (functions) & 40.21 & 31.21 & 30.27 & 56.02 \\
+LangGraph (agents) & 4.52 & 3.76 & 4.20 & 6.44 \\
+LangChain LCEL & 2.12 & \textbf{1.07} & \textbf{1.06} & \textbf{1.22} \\
+AutoGen GraphFlow & \textbf{1.58} & 1.64 & 2.29 & 4.03 \\
+Agno Workflow & 5.02 & 3.92 & 2.08 & 3.42 \\
+CrewAI Crew & -- & -- & 15.04 & -- \\
+\bottomrule
+\end{tabular}
+\caption{Re-specification time in milliseconds at 512 agents. Bold marks the lowest value in each column.}
+\label{tab:rearrange}
+\end{table}
+
+In absolute terms all of these times are small next to a model call. The practical difference is not the milliseconds but what the operation is: in \AR{} it is one validated assignment on a live object, and in the graph frameworks it is a second construction of the workflow.
+
+\subsection{Context: the flat fan-out benchmark}
+
+For reference, Table~\ref{tab:substrate} reproduces the existing Swarms benchmark (\code{tests/benchmark.py}), which runs a flat fan-out of full agents with a 200\,ms stub through nine frameworks, including three that have no workflow layer and are driven with \code{asyncio.gather}. Its Swarms column measures \code{ConcurrentWorkflow}, not \AR{}, and it shows where the agent substrate that \AR{} arranges stands: lowest or second-lowest overhead, and among the heaviest agent objects.
+
+\begin{table}[ht]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}l rrrrrrrrr@{}}
+\toprule
+ & Swarms & LangGraph & LangChain & CrewAI & AutoGen & OpenAI Agents & Pydantic AI & LlamaIndex & Agno \\
+\midrule
+Overhead, 100 agents (ms) & \textbf{6} & 19 & 35 & 580 & 9 & 73 & 110 & 170 & 16 \\
+Overhead, 1{,}000 agents (ms) & 58 & 304 & 307 & 8{,}461 & \textbf{51} & 557 & 1{,}239 & 2{,}334 & 72 \\
+Peak memory, 1{,}000 agents (MB) & 14.2 & 18.4 & 18.8 & 111.8 & \textbf{10.0} & 34.3 & 87.9 & 104.0 & 16.8 \\
+Memory per agent (KB) & 6.6 & 3.8 & 6.6 & 5.6 & \textbf{1.8} & 2.1 & 6.2 & 4.0 & 3.9 \\
+Cold import (s) & 0.27 & 0.28 & \textbf{0.03} & 1.82 & 0.23 & 0.76 & 0.39 & 0.65 & 0.24 \\
+\bottomrule
+\end{tabular}}
+\caption{Flat fan-out of full agents with a 200\,ms stubbed model, from \code{tests/benchmark.py}. The 100-agent rows are medians of three runs; the 1{,}000-agent rows are one run. The LangGraph and LangChain columns here use function nodes and prompt chains, which are lighter than agents.}
+\label{tab:substrate}
+\end{table}
+
+\section{Discussion and Limitations}
+\label{sec:limits}
+
+\paragraph{What the string buys.}
+The flow string turns topology from code into data. That has consequences beyond brevity. A topology can be validated before any model is called, printed as a plan, stored next to prompts in configuration, swapped at run time without rebuilding agents, and written by a language model, since a one-line string in a two-operator grammar is an easy target for generation and an easy one to check. None of this is impossible with a graph API, but each step needs code there and needs none here.
+
+\paragraph{What it gives up.}
+The language is deliberately small, and the things it omits are real.
+\begin{itemize}
+  \item \textbf{No conditional edges and no cycles.} A flow always runs every step. Routing on a model's output, retrying until a critic approves, and other data-dependent control flow belong to LangGraph, to AutoGen's conditional edges, or to Swarms structures built for them. \code{max\_loops} repeats the whole flow a fixed number of times and is not a loop with an exit condition.
+  \item \textbf{Series-parallel only.} Consecutive steps are fully connected. A dependency structure in which one agent of a step needs only some of the previous step's answers can be over-approximated but not stated exactly. \code{GraphWorkflow} in Swarms and the graph APIs of other frameworks cover general directed acyclic graphs.
+  \item \textbf{One shared conversation.} Every member reads everything written before it. This removes plumbing code, but the context an agent receives grows with its position in the flow, so the total number of input tokens in a chain of $N$ agents grows as $N^2$. With real models this cost, not orchestration overhead, is what limits long chains. There is no per-edge state, typed channel or reducer of the kind LangGraph provides.
+  \item \textbf{Names are the interface.} Agents are referenced by name, so names must be unique within a workflow and cannot contain a comma or the arrow. A misspelt name is caught at validation time, not by a type checker.
+  \item \textbf{Threads for parallel steps.} A parallel step of $w$ agents holds $w$ threads for its duration. This is fine at the widths typical of real workflows and wasteful at hundreds of agents; Section~\ref{sec:eval} shows the cost.
+  \item \textbf{No checkpointing.} A run is not resumable from the middle. The conversation can be saved after a run, but the workflow has no durable execution state.
+\end{itemize}
+
+\paragraph{Threats to validity.}
+The benchmark isolates orchestration cost by stubbing the model, so it says nothing about answer quality, token cost or behaviour under rate limits, and with real models every overhead reported here is small next to a single model call. All numbers come from one machine and one version of each framework. We wrote the adapters for the other frameworks ourselves, from their public documentation, and a maintainer of any of them might write a faster one; the adapters are short and public so that they can be corrected. The comparison of specification size counts calls, which is a proxy for effort and not a user study.
+
+\paragraph{Future work.}
+Three directions follow directly from the measurements. The first is to run parallel steps on one event loop, as \code{ConcurrentWorkflow} in Swarms now does, which would remove the thread per agent. The second is to give members a bounded view of the conversation, for example only the previous step, to break the quadratic growth of context in long chains. The third is a small extension of the grammar, such as parentheses for inline nesting, so that a series-parallel workflow of any depth is still a single string.
+
+\section{Conclusion}
+
+\AR{} reduces the specification of a multi-agent workflow to a string with two operators. The string is short, it is validated before anything runs, it can be inspected and replaced on a live workflow, and, with nesting, it covers every series-parallel arrangement of agents. The benchmark suite released with this paper shows that the simplicity is not paid for in speed where the language is meant to be used: for workflows that are wide and a few steps deep, \AR{} has among the lowest orchestration overhead and the lowest memory of the frameworks we measured, and it is cheaper than every graph framework whose nodes are full agents at every size. The same suite shows where the design stops scaling, in chains of hundreds of agents that all read one shared conversation, and that result points at the next improvements. For the workflows that most multi-agent systems consist of, a line of text is enough.
+
+\paragraph{Reproducibility.}
+The benchmark suite is \code{tests/benchmark\_agent\_rearrange.py} in the Swarms repository. It needs no API key. Running \code{python tests/benchmark\_agent\_rearrange.py -{}-out results.json} regenerates every measurement behind Figures~\ref{fig:overhead} and~\ref{fig:rearrange} and Tables~\ref{tab:overhead}, \ref{tab:resources} and~\ref{tab:rearrange}; a framework that is not installed is reported as an error for its cells and the rest still run.
+
+\paragraph{Acknowledgements.}
+The authors are the people who have contributed changes to the \AR{} source file, \path{swarms/structs/agent_rearrange.py}. We thank the wider Swarms community for issues, reviews and examples.
+
+\begin{thebibliography}{99}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
 
 \bibitem{langgraph}
-LangChain, Inc.
-\newblock {LangGraph: Building Stateful, Multi-Actor Applications with LLMs}.
-\newblock GitHub repository, 2024.
-\newblock \url{https://github.com/langchain-ai/langgraph}.
+LangChain Inc.
+\newblock LangGraph: Build resilient language agents as graphs.
+\newblock \url{https://github.com/langchain-ai/langgraph}, 2024.
+
+\bibitem{autogen}
+Q.~Wu, G.~Bansal, J.~Zhang, et~al.
+\newblock AutoGen: Enabling next-gen LLM applications via multi-agent conversation.
+\newblock arXiv:2308.08155, 2023.
 
 \bibitem{crewai}
-crewAI Inc.
-\newblock {CrewAI: Framework for Orchestrating Role-Playing, Autonomous AI Agents}.
-\newblock GitHub repository, 2024.
-\newblock \url{https://github.com/crewAIInc/crewAI}.
+J.~Moura and contributors.
+\newblock CrewAI: Framework for orchestrating role-playing, autonomous AI agents.
+\newblock \url{https://github.com/crewAIInc/crewAI}, 2023.
 
-\bibitem{litellm}
-BerriAI.
-\newblock {LiteLLM: Call All LLM APIs Using the OpenAI Format}.
-\newblock GitHub repository, 2024.
-\newblock \url{https://github.com/BerriAI/litellm}.
+\bibitem{agno}
+Agno.
+\newblock Agno: A framework for building multi-agent systems.
+\newblock \url{https://github.com/agno-agi/agno}, 2024.
 
-\bibitem{mcp}
-Anthropic.
-\newblock {Introducing the Model Context Protocol}.
-\newblock 2024.
-\newblock \url{https://www.anthropic.com/news/model-context-protocol}.
+\bibitem{anthropic_agents}
+E.~Schluntz and B.~Zhang.
+\newblock Building effective agents.
+\newblock Anthropic, \url{https://www.anthropic.com/research/building-effective-agents}, 2024.
 
-\bibitem{gpt4}
+\bibitem{einops}
+A.~Rogozhnikov.
+\newblock Einops: Clear and reliable tensor manipulations with Einstein-like notation.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+
+\bibitem{langchain}
+H.~Chase and contributors.
+\newblock LangChain.
+\newblock \url{https://github.com/langchain-ai/langchain}, 2022.
+
+\bibitem{dspy}
+O.~Khattab, A.~Singhvi, P.~Maheshwari, et~al.
+\newblock DSPy: Compiling declarative language model calls into self-improving pipelines.
+\newblock arXiv:2310.03714, 2023.
+
+\bibitem{camel}
+G.~Li, H.~A. A.~K. Hammoud, H.~Itani, D.~Khizbullin, and B.~Ghanem.
+\newblock CAMEL: Communicative agents for ``mind'' exploration of large language model society.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem{metagpt}
+S.~Hong, M.~Zhuge, J.~Chen, et~al.
+\newblock MetaGPT: Meta programming for a multi-agent collaborative framework.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem{chatdev}
+C.~Qian, W.~Liu, H.~Liu, et~al.
+\newblock ChatDev: Communicative agents for software development.
+\newblock arXiv:2307.07924, 2023.
+
+\bibitem{moa}
+J.~Wang, J.~Wang, B.~Athiwaratkun, C.~Zhang, and J.~Zou.
+\newblock Mixture-of-Agents enhances large language model capabilities.
+\newblock arXiv:2406.04692, 2024.
+
+\bibitem{openai_agents}
 OpenAI.
-\newblock {GPT-4 Technical Report}.
-\newblock \textit{arXiv preprint arXiv:2303.08774}, 2023.
+\newblock OpenAI Agents SDK.
+\newblock \url{https://github.com/openai/openai-agents-python}, 2025.
 
-\bibitem{claude}
-Anthropic.
-\newblock {The Claude 3 Model Family: Opus, Sonnet, Haiku}.
-\newblock Technical report, Anthropic, 2024.
+\bibitem{pydantic_ai}
+Pydantic.
+\newblock Pydantic AI.
+\newblock \url{https://github.com/pydantic/pydantic-ai}, 2024.
+
+\bibitem{llamaindex}
+J.~Liu and contributors.
+\newblock LlamaIndex.
+\newblock \url{https://github.com/run-llama/llama_index}, 2022.
+
+\bibitem{sp_graphs}
+J.~Valdes, R.~E. Tarjan, and E.~L. Lawler.
+\newblock The recognition of series parallel digraphs.
+\newblock \emph{SIAM Journal on Computing}, 11(2):298--313, 1982.
+
+\bibitem{workflow_patterns}
+W.~M.~P. van~der Aalst, A.~H.~M. ter~Hofstede, B.~Kiepuszewski, and A.~P. Barros.
+\newblock Workflow patterns.
+\newblock \emph{Distributed and Parallel Databases}, 14(1):5--51, 2003.
+
+\bibitem{swarms}
+K.~Gomez and contributors.
+\newblock Swarms: The enterprise-grade production-ready multi-agent orchestration framework.
+\newblock \url{https://github.com/kyegomez/swarms}, 2023.
+
+\bibitem{react}
+S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~Narasimhan, and Y.~Cao.
+\newblock ReAct: Synergizing reasoning and acting in language models.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+
+\bibitem{survey_guo}
+T.~Guo, X.~Chen, Y.~Wang, et~al.
+\newblock Large language model based multi-agents: A survey of progress and challenges.
+\newblock In \emph{International Joint Conference on Artificial Intelligence}, 2024.
+
+\bibitem{survey_wang}
+L.~Wang, C.~Ma, X.~Feng, et~al.
+\newblock A survey on large language model based autonomous agents.
+\newblock \emph{Frontiers of Computer Science}, 18(6):186345, 2024.
+
+\bibitem{mast}
+M.~Cemri, M.~Z. Pan, S.~Yang, et~al.
+\newblock Why do multi-agent LLM systems fail?
+\newblock arXiv:2503.13657, 2025.
+
+\bibitem{numpy}
+C.~R. Harris, K.~J. Millman, S.~J. van~der Walt, et~al.
+\newblock Array programming with NumPy.
+\newblock \emph{Nature}, 585:357--362, 2020.
+
+\bibitem{semantic_kernel}
+Microsoft.
+\newblock Semantic Kernel.
+\newblock \url{https://github.com/microsoft/semantic-kernel}, 2023.
+
+\bibitem{magentic_one}
+A.~Fourney, G.~Bansal, H.~Mozannar, et~al.
+\newblock Magentic-One: A generalist multi-agent system for solving complex tasks.
+\newblock arXiv:2411.04468, 2024.
+
+\bibitem{agentverse}
+W.~Chen, Y.~Su, J.~Zuo, et~al.
+\newblock AgentVerse: Facilitating multi-agent collaboration and exploring emergent behaviors.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem{generative_agents}
+J.~S. Park, J.~C. O'Brien, C.~J. Cai, M.~R. Morris, P.~Liang, and M.~S. Bernstein.
+\newblock Generative agents: Interactive simulacra of human behavior.
+\newblock In \emph{ACM Symposium on User Interface Software and Technology}, 2023.
+
+\bibitem{self_consistency}
+X.~Wang, J.~Wei, D.~Schuurmans, et~al.
+\newblock Self-consistency improves chain of thought reasoning in language models.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+
+\bibitem{debate}
+Y.~Du, S.~Li, A.~Torralba, J.~B. Tenenbaum, and I.~Mordatch.
+\newblock Improving factuality and reasoning in language models through multiagent debate.
+\newblock In \emph{International Conference on Machine Learning}, 2024.
+
+\bibitem{more_agents}
+J.~Li, Q.~Zhang, Y.~Yu, Q.~Fu, and D.~Ye.
+\newblock More agents is all you need.
+\newblock \emph{Transactions on Machine Learning Research}, 2024.
+
+\bibitem{tot}
+S.~Yao, D.~Yu, J.~Zhao, I.~Shafran, T.~L. Griffiths, Y.~Cao, and K.~Narasimhan.
+\newblock Tree of thoughts: Deliberate problem solving with large language models.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem{gptswarm}
+M.~Zhuge, W.~Wang, L.~Kirsch, F.~Faccio, D.~Khizbullin, and J.~Schmidhuber.
+\newblock GPTSwarm: Language agents as optimizable graphs.
+\newblock In \emph{International Conference on Machine Learning}, 2024.
+
+\bibitem{dylan}
+Z.~Liu, Y.~Zhang, P.~Li, Y.~Liu, and D.~Yang.
+\newblock Dynamic LLM-agent network: An LLM-agent collaboration framework with agent team optimization.
+\newblock arXiv:2310.02170, 2023.
+
+\bibitem{macnet}
+C.~Qian, Z.~Xie, Y.~Wang, et~al.
+\newblock Scaling large-language-model-based multi-agent collaboration.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem{adas}
+S.~Hu, C.~Lu, and J.~Clune.
+\newblock Automated design of agentic systems.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem{aflow}
+J.~Zhang, J.~Xiang, Z.~Yu, et~al.
+\newblock AFlow: Automating agentic workflow generation.
+\newblock In \emph{International Conference on Learning Representations}, 2025.
+
+\bibitem{llmcompiler}
+S.~Kim, S.~Moon, R.~Tabrizi, N.~Lee, M.~W. Mahoney, K.~Keutzer, and A.~Gholami.
+\newblock An LLM compiler for parallel function calling.
+\newblock In \emph{International Conference on Machine Learning}, 2024.
+
+\bibitem{openai_swarm}
+OpenAI.
+\newblock Swarm: Educational framework exploring ergonomic, lightweight multi-agent orchestration.
+\newblock \url{https://github.com/openai/swarm}, 2024.
+
+\bibitem{mapreduce}
+J.~Dean and S.~Ghemawat.
+\newblock MapReduce: Simplified data processing on large clusters.
+\newblock In \emph{Symposium on Operating Systems Design and Implementation}, 2004.
+
+\bibitem{kahn}
+G.~Kahn.
+\newblock The semantics of a simple language for parallel programming.
+\newblock In \emph{Information Processing 74: Proceedings of the IFIP Congress}, pages 471--475, 1974.
 
 \bibitem{airflow}
 Apache Software Foundation.
-\newblock {Apache Airflow: A Platform to Programmatically Author, Schedule, and Monitor Workflows}.
-\newblock 2014--present.
-\newblock \url{https://airflow.apache.org}.
-
-\bibitem{swarms}
-Gomez, K. and the Swarms Research Department.
-\newblock {Swarms: The Enterprise-Grade Production-Ready Multi-Agent Orchestration Framework}.
-\newblock GitHub repository, version 12.0.0, 2024--2026.
-\newblock \url{https://github.com/kyegomez/swarms}.
+\newblock Apache Airflow.
+\newblock \url{https://github.com/apache/airflow}, 2015.
 
 \end{thebibliography}
 
