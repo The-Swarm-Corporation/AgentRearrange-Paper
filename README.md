@@ -2,8 +2,6 @@
   <img src="./assets/banner.png" alt="AgentRearrange Banner" width="100%">
 </p>
 
-<img src="./diagram.png" width="450px"></img>
-
 ## AgentRearrange
 
 Code, benchmarks and LaTeX source for <a href="./paper.pdf">AgentRearrange: Simplifying Multi-Agent Workflow Orchestration</a>.
