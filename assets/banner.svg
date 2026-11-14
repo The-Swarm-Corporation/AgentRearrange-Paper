@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500" viewBox="0 0 1600 500">
+  <defs>
+    <clipPath id="rounded-corners">
+      <rect x="0" y="0" width="1600" height="500" rx="24" ry="24"/>
+    </clipPath>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4A4A4A"/>
+    </marker>
+  </defs>
+  
+  <!-- Background with rounded corners -->
+  <rect x="0" y="0" width="1600" height="500" rx="24" ry="24" fill="#E8E8E8"/>
+  
+  <!-- Node Graph: a -> b, c -> d pattern -->
+  <g transform="translate(120, 250)">
+    <!-- Node A (leftmost) -->
+    <circle cx="0" cy="0" r="28" fill="#3A3A3A"/>
+    <text x="0" y="7" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">a</text>
+    
+    <!-- Arrow from A to B -->
+    <line x1="32" y1="-20" x2="88" y2="-55" stroke="#4A4A4A" stroke-width="3" marker-end="url(#arrowhead)"/>
+    
+    <!-- Arrow from A to C -->
+    <line x1="32" y1="20" x2="88" y2="55" stroke="#4A4A4A" stroke-width="3" marker-end="url(#arrowhead)"/>
+    
+    <!-- Node B (top, orange-red accent) -->
+    <circle cx="120" cy="-70" r="28" fill="#E85D3B"/>
+    <text x="120" y="-63" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">b</text>
+    
+    <!-- Node C (bottom) -->
+    <circle cx="120" cy="70" r="28" fill="#3A3A3A"/>
+    <text x="120" y="77" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">c</text>
+    
+    <!-- Arrow from B to D -->
+    <line x1="152" y1="-55" x2="208" y2="-20" stroke="#4A4A4A" stroke-width="3" marker-end="url(#arrowhead)"/>
+    
+    <!-- Arrow from C to D -->
+    <line x1="152" y1="55" x2="208" y2="20" stroke="#4A4A4A" stroke-width="3" marker-end="url(#arrowhead)"/>
+    
+    <!-- Node D (rightmost) -->
+    <circle cx="240" cy="0" r="28" fill="#3A3A3A"/>
+    <text x="240" y="7" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">d</text>
+  </g>
+  
+  <!-- Vertical Divider -->
+  <line x1="480" y1="120" x2="480" y2="380" stroke="#C0C0C0" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="540" y="235" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="72" font-weight="700" fill="#2A2A2A">AgentRearrange</text>
+  
+  <!-- Subtitle -->
+  <text x="540" y="300" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="400" fill="#6A6A6A">A General-Purpose Multi-Agent Orchestrator</text>
+</svg>
